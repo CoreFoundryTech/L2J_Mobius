@@ -8,7 +8,7 @@ WORKDIR /workspace/L2J_Mobius_CT_2.6_HighFive
 COPY L2J_Mobius_CT_2.6_HighFive ./
 RUN ant jar
 
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /opt/l2
 COPY L2J_Mobius_CT_2.6_HighFive/dist/libs ./libs
