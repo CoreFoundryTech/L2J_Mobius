@@ -6,7 +6,7 @@ RUN apt-get update \
 
 WORKDIR /workspace/L2J_Mobius_CT_2.6_HighFive
 COPY L2J_Mobius_CT_2.6_HighFive ./
-RUN ant
+RUN ant jar
 
 FROM eclipse-temurin:17-jre
 
