@@ -4,13 +4,19 @@ set -euo pipefail
 ROLE="${1:-}"
 shift || true
 
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[\\&#]/\\&/g'
+}
+
 replace_ini_value() {
   local file="$1"
   local key="$2"
   local value="$3"
+  local escaped_value
+  escaped_value="$(escape_sed_replacement "${value}")"
 
   if grep -qE "^[[:space:]]*${key}[[:space:]]*=" "${file}"; then
-    sed -i -E "s#^[[:space:]]*${key}[[:space:]]*=.*#${key} = ${value}#" "${file}"
+    sed -i -E "s#^[[:space:]]*${key}[[:space:]]*=.*#${key} = ${escaped_value}#" "${file}"
   else
     printf '\n%s = %s\n' "${key}" "${value}" >> "${file}"
   fi
@@ -22,6 +28,19 @@ require_env() {
     echo "${name} is required" >&2
     exit 1
   fi
+}
+
+sanitize_java_cfg() {
+  local file="$1"
+  [ -f "${file}" ] || return 0
+
+  # H5 ships with legacy CMS flags that were removed from modern JVMs.
+  # Java 17 rejects these options before the server can start.
+  sed -i \
+    -e 's/[[:space:]]*-XX:+CMSParallelRemarkEnabled//g' \
+    -e 's/[[:space:]]*-XX:+UseConcMarkSweepGC//g' \
+    -e 's/[[:space:]]*-XX:+UseParNewGC//g' \
+    "${file}"
 }
 
 render_db_config() {
@@ -40,6 +59,7 @@ render_db_config() {
 case "${ROLE}" in
   login)
     cd /opt/l2/login
+    sanitize_java_cfg ./java.cfg
     render_db_config ./config/LoginServer.ini
     replace_ini_value ./config/LoginServer.ini "LoginserverHostname" "${LOGIN_BIND_HOST:-0.0.0.0}"
     replace_ini_value ./config/LoginServer.ini "LoginserverPort" "${LOGIN_CLIENT_PORT:-2106}"
@@ -48,6 +68,7 @@ case "${ROLE}" in
     ;;
   game)
     cd /opt/l2/game
+    sanitize_java_cfg ./java.cfg
     render_db_config ./config/Server.ini
     replace_ini_value ./config/Server.ini "LoginHost" "${GAME_LOGIN_HOST:-login}"
     replace_ini_value ./config/Server.ini "LoginPort" "${LOGIN_INTERNAL_PORT:-9014}"
