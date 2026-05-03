@@ -1,0 +1,85 @@
+services:
+  mariadb:
+    container_name: l2h5-mariadb
+    image: mariadb:${MARIADB_VERSION:-11.4}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - l2h5-mariadb-data:/var/lib/mysql
+      - ../../L2J_Mobius_CT_2.6_HighFive/dist/db_installer/sql:/l2j/sql:ro
+      - ./mariadb-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - dokploy-network
+
+  login:
+    container_name: l2h5-login
+    build:
+      context: ../..
+      dockerfile: deploy/h5/docker/login.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      TZ: ${TZ}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      LOGIN_BIND_HOST: ${LOGIN_BIND_HOST}
+      LOGIN_CLIENT_PORT: ${LOGIN_EXTERNAL_PORT}
+      LOGIN_GAME_HOST: ${LOGIN_GAME_HOST}
+      LOGIN_GAME_PORT: ${LOGIN_INTERNAL_PORT}
+    ports:
+      - "${LOGIN_EXTERNAL_PORT}:2106"
+    expose:
+      - "9014"
+    networks:
+      - dokploy-network
+
+  game:
+    container_name: l2h5-game
+    build:
+      context: ../..
+      dockerfile: deploy/h5/docker/game.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      login:
+        condition: service_started
+    environment:
+      TZ: ${TZ}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PUBLIC_IP: ${PUBLIC_IP}
+      GAME_LOGIN_HOST: ${GAME_LOGIN_HOST}
+      LOGIN_INTERNAL_PORT: ${LOGIN_INTERNAL_PORT}
+      GAME_BIND_HOST: ${GAME_BIND_HOST}
+      GAME_EXTERNAL_PORT: ${GAME_EXTERNAL_PORT}
+      REQUEST_SERVER_ID: ${REQUEST_SERVER_ID}
+    ports:
+      - "${GAME_EXTERNAL_PORT}:7777"
+    networks:
+      - dokploy-network
+
+volumes:
+  l2h5-mariadb-data:
+
+networks:
+  dokploy-network:
+    external: true
