@@ -530,7 +530,7 @@ public class EnterWorld implements IClientIncomingPacket
 			client.sendPacket(ExBRNewIconCashBtnWnd.NO_UPDATES);
 		}
 
-		client.sendPacket(new FriendList(player));
+		client.sendPacket(salvation140Client ? new L2FriendListSalvation140(player) : new FriendList(player));
 		
 		SystemMessage sm = new SystemMessage(SystemMessageId.YOUR_FRIEND_S1_JUST_LOGGED_IN);
 		sm.addString(player.getName());

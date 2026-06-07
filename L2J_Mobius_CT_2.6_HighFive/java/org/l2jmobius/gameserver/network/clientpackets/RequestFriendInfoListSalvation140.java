@@ -19,11 +19,11 @@ package org.l2jmobius.gameserver.network.clientpackets;
 import org.l2jmobius.commons.network.PacketReader;
 import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
 import org.l2jmobius.gameserver.network.GameClient;
+import org.l2jmobius.gameserver.network.serverpackets.L2FriendListSalvation140;
 
 /** Salvation 140 friend info list request. */
 public class RequestFriendInfoListSalvation140 implements IClientIncomingPacket
 {
-	private final RequestFriendList _delegate = new RequestFriendList();
 	private int _skipped;
 
 	@Override
@@ -43,6 +43,6 @@ public class RequestFriendInfoListSalvation140 implements IClientIncomingPacket
 			return;
 		}
 		System.out.println("SALVATION140 RequestFriendInfoList account=" + client.getAccountName() + ", player=" + player.getName() + ", skipped=" + _skipped);
-		_delegate.run(client);
+		client.sendPacket(new L2FriendListSalvation140(player));
 	}
 }
