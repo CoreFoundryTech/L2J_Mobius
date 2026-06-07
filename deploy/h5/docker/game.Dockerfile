@@ -22,4 +22,4 @@ RUN chmod +x ./*.sh /usr/local/bin/l2h5-entrypoint.sh && mkdir -p log
 EXPOSE 7777
 
 ENTRYPOINT ["/usr/local/bin/l2h5-entrypoint.sh", "game"]
-CMD ["/bin/bash", "./GameServerTask.sh"]
+CMD ["/bin/bash", "-lc", "exec java $(cat ./java.cfg) -jar ../libs/GameServer.jar"]

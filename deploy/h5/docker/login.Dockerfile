@@ -23,4 +23,4 @@ EXPOSE 2106
 EXPOSE 9014
 
 ENTRYPOINT ["/usr/local/bin/l2h5-entrypoint.sh", "login"]
-CMD ["/bin/bash", "./LoginServerTask.sh"]
+CMD ["/bin/bash", "-lc", "exec java $(cat ./java.cfg) -jar ../libs/LoginServer.jar"]
