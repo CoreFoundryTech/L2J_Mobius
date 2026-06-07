@@ -35,6 +35,7 @@ import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
 import org.l2jmobius.gameserver.model.clan.Clan;
 import org.l2jmobius.gameserver.model.itemcontainer.Inventory;
+import org.l2jmobius.gameserver.network.ClientProtocolProfile;
 import org.l2jmobius.gameserver.network.Disconnection;
 import org.l2jmobius.gameserver.network.GameClient;
 import org.l2jmobius.gameserver.network.OutgoingPackets;
@@ -46,6 +47,7 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 	private final int _sessionId;
 	private int _activeId;
 	private final CharSelectInfoPackage[] _characterPackages;
+	private final ClientProtocolProfile _protocolProfile;
 	
 	/**
 	 * Constructor for CharSelectionInfo.
@@ -58,14 +60,25 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 		_loginName = loginName;
 		_characterPackages = loadCharacterSelectInfo(_loginName);
 		_activeId = -1;
+		_protocolProfile = ClientProtocolProfile.HIGH_FIVE;
 	}
-	
+
 	public CharSelectionInfo(String loginName, int sessionId, int activeId)
 	{
 		_sessionId = sessionId;
 		_loginName = loginName;
 		_characterPackages = loadCharacterSelectInfo(_loginName);
 		_activeId = activeId;
+		_protocolProfile = ClientProtocolProfile.HIGH_FIVE;
+	}
+
+	public CharSelectionInfo(String loginName, int sessionId, ClientProtocolProfile protocolProfile)
+	{
+		_sessionId = sessionId;
+		_loginName = loginName;
+		_characterPackages = loadCharacterSelectInfo(_loginName);
+		_activeId = -1;
+		_protocolProfile = protocolProfile;
 	}
 	
 	public CharSelectInfoPackage[] getCharInfo()
@@ -75,6 +88,11 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 	
 	@Override
 	public boolean write(PacketWriter packet)
+	{
+		return _protocolProfile == ClientProtocolProfile.SALVATION_140 ? writeSalvation140(packet) : writeHighFive(packet);
+	}
+
+	private boolean writeHighFive(PacketWriter packet)
 	{
 		OutgoingPackets.CHARACTER_SELECTION_INFO.writeId(packet);
 		
@@ -168,6 +186,134 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 			packet.writeF(0x00); // Current pet MP
 			
 			packet.writeD(charInfoPackage.getVitalityPoints()); // Vitality
+		}
+		return true;
+	}
+
+	private boolean writeSalvation140(PacketWriter packet)
+	{
+		OutgoingPackets.CHARACTER_SELECTION_INFO.writeId(packet);
+
+		final int size = _characterPackages.length;
+		packet.writeD(size); // Created character count
+		packet.writeD(Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT);
+		packet.writeC(size >= Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT ? 0x01 : 0x00);
+		packet.writeC(0x00);
+		packet.writeD(0x02); // Normal lobby.
+		packet.writeC(0x00); // Premium account prompt.
+		packet.writeC(0x00); // Protocol 140 marker.
+
+		long lastAccess = 0;
+		if (_activeId == -1)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				if (lastAccess < _characterPackages[i].getLastAccess())
+				{
+					lastAccess = _characterPackages[i].getLastAccess();
+					_activeId = i;
+				}
+			}
+		}
+
+		for (int i = 0; i < size; i++)
+		{
+			final CharSelectInfoPackage charInfoPackage = _characterPackages[i];
+
+			packet.writeS(charInfoPackage.getName());
+			packet.writeD(charInfoPackage.getObjectId());
+			packet.writeS(_loginName);
+			packet.writeD(_sessionId);
+			packet.writeD(charInfoPackage.getClanId());
+			packet.writeD(0x00); // Builder level.
+
+			packet.writeD(charInfoPackage.getSex());
+			packet.writeD(charInfoPackage.getRace());
+			packet.writeD(charInfoPackage.getBaseClassId());
+
+			packet.writeD(0x01); // GameServerName
+
+			packet.writeD(charInfoPackage.getX());
+			packet.writeD(charInfoPackage.getY());
+			packet.writeD(charInfoPackage.getZ());
+			packet.writeF(charInfoPackage.getCurrentHp());
+			packet.writeF(charInfoPackage.getCurrentMp());
+
+			packet.writeQ(charInfoPackage.getSp());
+			packet.writeQ(charInfoPackage.getExp());
+			packet.writeF((float) (charInfoPackage.getExp() - ExperienceData.getInstance().getExpForLevel(charInfoPackage.getLevel())) / (ExperienceData.getInstance().getExpForLevel(charInfoPackage.getLevel() + 1) - ExperienceData.getInstance().getExpForLevel(charInfoPackage.getLevel())));
+			packet.writeD(charInfoPackage.getLevel());
+
+			packet.writeD(charInfoPackage.getKarma());
+			packet.writeD(charInfoPackage.getPkKills());
+			packet.writeD(charInfoPackage.getPvPKills());
+
+			packet.writeD(0x00);
+			packet.writeD(0x00);
+			packet.writeD(0x00);
+			packet.writeD(0x00);
+			packet.writeD(0x00);
+			packet.writeD(0x00);
+			packet.writeD(0x00);
+			packet.writeD(0x00); // Ertheia placeholder.
+			packet.writeD(0x00); // Ertheia placeholder.
+
+			for (int slot : getPaperdollOrder())
+			{
+				packet.writeD(charInfoPackage.getPaperdollItemId(slot));
+			}
+			for (int j = 0; j < 12; j++)
+			{
+				packet.writeD(0x00); // Brooch/jewel/agathion slots unavailable in H5 data model.
+			}
+
+			packet.writeD(0x00); // Weapon visual item id.
+			packet.writeD(0x00); // Shield visual item id.
+			packet.writeD(0x00); // Gloves visual item id.
+			packet.writeD(0x00); // Chest visual item id.
+			packet.writeD(0x00); // Legs visual item id.
+			packet.writeD(0x00); // Feet visual item id.
+			packet.writeD(0x00);
+			packet.writeD(0x00); // Hair visual item id.
+			packet.writeD(0x00); // Hair2 visual item id.
+
+			packet.writeH(0x00); // Chest enchant effect.
+			packet.writeH(0x00); // Legs enchant effect.
+			packet.writeH(0x00); // Head enchant effect.
+			packet.writeH(0x00); // Gloves enchant effect.
+			packet.writeH(0x00); // Feet enchant effect.
+
+			packet.writeD(charInfoPackage.getPaperdollItemId(Inventory.PAPERDOLL_HAIR) > 0 ? charInfoPackage.getSex() : charInfoPackage.getHairStyle());
+			packet.writeD(charInfoPackage.getHairColor());
+			packet.writeD(charInfoPackage.getFace());
+
+			packet.writeF(charInfoPackage.getMaxHp());
+			packet.writeF(charInfoPackage.getMaxMp());
+
+			packet.writeD(charInfoPackage.getAccessLevel() > -100 ? (charInfoPackage.getDeleteTimer() > 0 ? (int) ((charInfoPackage.getDeleteTimer() - System.currentTimeMillis()) / 1000) : 0) : -1);
+			packet.writeD(charInfoPackage.getClassId());
+			packet.writeD(i == _activeId ? 0x01 : 0x00);
+
+			packet.writeC(Math.min(charInfoPackage.getEnchantEffect(), 127));
+			packet.writeD(charInfoPackage.getAugmentationId());
+			packet.writeD(0x00);
+
+			packet.writeD(0x00); // Transform id.
+			packet.writeD(0x00); // Pet NpcId.
+			packet.writeD(0x00); // Pet level.
+			packet.writeD(0x00); // Pet Food.
+			packet.writeD(0x00); // Pet Food Level.
+			packet.writeF(0x00); // Current pet HP.
+			packet.writeF(0x00); // Current pet MP.
+
+			packet.writeD(charInfoPackage.getVitalityPoints() * 7);
+			packet.writeD(charInfoPackage.getVitalityPoints() > 0 ? 100 : 100);
+			packet.writeD(0x00); // Use Vitality Potions Left.
+
+			packet.writeD(0x01); // Character available.
+			packet.writeC(0x00); // Chaos Festival Winner.
+			packet.writeC(0x00); // Hero glow.
+			packet.writeC(0x01); // Show hair accessory.
 		}
 		return true;
 	}

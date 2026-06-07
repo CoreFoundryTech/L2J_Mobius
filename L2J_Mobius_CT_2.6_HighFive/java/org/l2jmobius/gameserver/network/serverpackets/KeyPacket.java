@@ -18,19 +18,27 @@ package org.l2jmobius.gameserver.network.serverpackets;
 
 import org.l2jmobius.Config;
 import org.l2jmobius.commons.network.PacketWriter;
+import org.l2jmobius.gameserver.network.ClientProtocolProfile;
 import org.l2jmobius.gameserver.network.OutgoingPackets;
 
 public class KeyPacket implements IClientOutgoingPacket
 {
 	private final byte[] _key;
 	private final int _result;
-	
+	private final ClientProtocolProfile _protocolProfile;
+
 	public KeyPacket(byte[] key, int result)
+	{
+		this(key, result, ClientProtocolProfile.HIGH_FIVE);
+	}
+
+	public KeyPacket(byte[] key, int result, ClientProtocolProfile protocolProfile)
 	{
 		_key = key;
 		_result = result;
+		_protocolProfile = protocolProfile;
 	}
-	
+
 	@Override
 	public boolean write(PacketWriter packet)
 	{
@@ -45,6 +53,11 @@ public class KeyPacket implements IClientOutgoingPacket
 		packet.writeD(Config.SERVER_ID); // server id
 		packet.writeC(0x01);
 		packet.writeD(0x00); // obfuscation key
+		if (_protocolProfile == ClientProtocolProfile.SALVATION_140)
+		{
+			packet.writeC(0x00); // Classic flag
+			packet.writeC(0x00); // Arena flag
+		}
 		return true;
 	}
 }

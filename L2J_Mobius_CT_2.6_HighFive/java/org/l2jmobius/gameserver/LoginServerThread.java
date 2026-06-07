@@ -72,6 +72,7 @@ import org.l2jmobius.gameserver.network.loginserverpackets.login.LoginServerFail
 import org.l2jmobius.gameserver.network.loginserverpackets.login.PlayerAuthResponse;
 import org.l2jmobius.gameserver.network.loginserverpackets.login.RequestCharacters;
 import org.l2jmobius.gameserver.network.serverpackets.CharSelectionInfo;
+import org.l2jmobius.gameserver.network.serverpackets.LoginResult;
 import org.l2jmobius.gameserver.network.serverpackets.LoginFail;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 
@@ -316,7 +317,12 @@ public class LoginServerThread extends Thread
 									sendPacket(pig);
 									wcToRemove.gameClient.setConnectionState(ConnectionState.AUTHENTICATED);
 									wcToRemove.gameClient.setSessionId(wcToRemove.session);
-									final CharSelectionInfo cl = new CharSelectionInfo(wcToRemove.account, wcToRemove.gameClient.getSessionId().playOkID1);
+									LOGGER.info("Auth OK account=" + wcToRemove.account + ", protocol=" + wcToRemove.gameClient.getProtocolVersion() + ", profile=" + wcToRemove.gameClient.getProtocolProfile() + ", state=" + wcToRemove.gameClient.getConnectionState());
+									if (wcToRemove.gameClient.isSalvation140Client())
+									{
+										wcToRemove.gameClient.sendPacket(LoginResult.SUCCESS);
+									}
+									final CharSelectionInfo cl = new CharSelectionInfo(wcToRemove.account, wcToRemove.gameClient.getSessionId().playOkID1, wcToRemove.gameClient.getProtocolProfile());
 									wcToRemove.gameClient.sendPacket(cl);
 									wcToRemove.gameClient.setCharSelection(cl.getCharInfo());
 								}

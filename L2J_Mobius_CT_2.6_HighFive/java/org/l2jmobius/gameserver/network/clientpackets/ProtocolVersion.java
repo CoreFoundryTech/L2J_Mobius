@@ -50,13 +50,16 @@ public class ProtocolVersion implements IClientIncomingPacket
 		}
 		else if (!Config.PROTOCOL_LIST.contains(_version))
 		{
-			LOGGER_ACCOUNTING.warning("Wrong protocol version " + _version + ", " + client);
+			client.setProtocolVersion(_version);
+			LOGGER_ACCOUNTING.warning("Wrong protocol version " + _version + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", " + client);
 			client.setProtocolOk(false);
 			client.close(new KeyPacket(client.enableCrypt(), 0));
 		}
 		else
 		{
-			client.sendPacket(new KeyPacket(client.enableCrypt(), 1));
+			client.setProtocolVersion(_version);
+			LOGGER_ACCOUNTING.info("Accepted protocol version " + _version + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", " + client);
+			client.sendPacket(new KeyPacket(client.enableCrypt(), 1, client.getProtocolProfile()));
 			client.setProtocolOk(true);
 		}
 	}

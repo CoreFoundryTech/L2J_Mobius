@@ -195,7 +195,7 @@ public enum IncomingPackets implements IIncomingPackets<GameClient>
 	REQUEST_PREVIEW_ITEM(0xC7, RequestPreviewItem::new, ConnectionState.IN_GAME),
 	REQUEST_SSQ_STATUS(0xC8, null, ConnectionState.IN_GAME),
 	REQUEST_PETITION_FEEDBACK(0xC9, RequestPetitionFeedback::new, ConnectionState.IN_GAME),
-	GAME_GUARD_REPLY(0xCB, GameGuardReply::new, ConnectionState.IN_GAME),
+	GAME_GUARD_REPLY(0xCB, GameGuardReply::new, ConnectionState.CONNECTED, ConnectionState.AUTHENTICATED, ConnectionState.IN_GAME),
 	REQUEST_PLEDGE_POWER(0xCC, RequestPledgePower::new, ConnectionState.IN_GAME),
 	REQUEST_MAKE_MACRO(0xCD, RequestMakeMacro::new, ConnectionState.IN_GAME),
 	REQUEST_DELETE_MACRO(0xCE, RequestDeleteMacro::new, ConnectionState.IN_GAME),
