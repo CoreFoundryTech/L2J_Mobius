@@ -81,6 +81,10 @@ import org.l2jmobius.gameserver.network.serverpackets.ExRotation;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowContactList;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.ExStorageMaxCount;
+import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoAbnormalVisualEffect;
+import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoCubic;
+import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoEquipSlot;
+import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoInvenWeight;
 import org.l2jmobius.gameserver.network.serverpackets.ExVoteSystemInfo;
 import org.l2jmobius.gameserver.network.serverpackets.FriendList;
 import org.l2jmobius.gameserver.network.serverpackets.HennaInfo;
@@ -94,6 +98,7 @@ import org.l2jmobius.gameserver.network.serverpackets.QuestList;
 import org.l2jmobius.gameserver.network.serverpackets.ShortCutInit;
 import org.l2jmobius.gameserver.network.serverpackets.SkillCoolTime;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
+import org.l2jmobius.gameserver.network.serverpackets.UserInfo140;
 import org.l2jmobius.gameserver.network.serverpackets.ValidateLocation;
 import org.l2jmobius.gameserver.util.BuilderUtil;
 
@@ -683,12 +688,17 @@ public class EnterWorld implements IClientIncomingPacket
 
 	private void sendSalvation140EarlyBootstrap(GameClient client, PlayerInstance player)
 	{
-		System.out.println("SALVATION140 EnterWorld bootstrap account=" + client.getAccountName() + ", player=" + player.getName() + ", skip=UserInfo0x32, add=ExLightingCandleEvent+ExEnterWorldPacket");
+		System.out.println("SALVATION140 EnterWorld bootstrap account=" + client.getAccountName() + ", player=" + player.getName() + ", add=ExLightingCandleEvent+ExEnterWorldPacket+UserInfo140+ExUserInfo cluster");
 		player.sendPacket(ExLightingCandleEvent.DISABLED);
 		player.sendPacket(new ExEnterWorldPacket());
 		player.sendPacket(new HennaInfo(player));
 		player.sendSkillList();
 		player.sendPacket(new EtcStatusUpdate(player));
+		player.sendPacket(new UserInfo140(player));
+		player.sendPacket(new ExUserInfoInvenWeight(player));
+		player.sendPacket(new ExUserInfoEquipSlot(player));
+		player.sendPacket(new ExUserInfoCubic(player));
+		player.sendPacket(new ExUserInfoAbnormalVisualEffect(player));
 		player.sendPacket(new QuestList(player));
 		client.sendPacket(new ItemList(player, false));
 		client.sendPacket(new ExGetBookMarkInfoPacket(player));
