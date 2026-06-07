@@ -25,14 +25,14 @@ import io.netty.buffer.ByteBuf;
  */
 public class Crypt implements ICrypt
 {
-	// private final GameClient _client;
+	private final GameClient _client;
 	private final byte[] _inKey = new byte[16];
 	private final byte[] _outKey = new byte[16];
 	private boolean _isEnabled;
-	
+
 	public Crypt(GameClient client)
 	{
-		// _client = client;
+		_client = client;
 	}
 	
 	public void setKey(byte[] key)
@@ -97,9 +97,27 @@ public class Crypt implements ICrypt
 	{
 		final byte[] data = new byte[buf.writerIndex()];
 		buf.getBytes(0, data);
+		if ((_client != null) && _client.isSalvation140Client() && (data.length <= 16))
+		{
+			System.out.println("SALVATION140 decrypt account=" + _client.getAccountName() + ", state=" + _client.getConnectionState() + ", size=" + data.length + ", bytes=" + toHex(data));
+		}
 		// EventDispatcher.getInstance().notifyEvent(new OnPacketReceived(_client, data));
 	}
-	
+
+	private static String toHex(byte[] data)
+	{
+		final StringBuilder sb = new StringBuilder(data.length * 3);
+		for (int i = 0; i < data.length; i++)
+		{
+			if (i > 0)
+			{
+				sb.append(' ');
+			}
+			sb.append(String.format("%02X", data[i] & 0xFF));
+		}
+		return sb.toString();
+	}
+
 	private void shiftKey(byte[] key, int size)
 	{
 		int old = key[8] & 0xff;
