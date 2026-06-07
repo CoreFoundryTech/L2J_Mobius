@@ -15,6 +15,31 @@ import org.l2jmobius.gameserver.network.OutgoingPackets;
 
 public class UserInfo140 implements IClientOutgoingPacket
 {
+	private static final int BLOCK_COUNT = 24;
+	private static final int RELATION_LENGTH = 4;
+	private static final int BASIC_INFO_LENGTH = 16;
+	private static final int BASE_STATS_LENGTH = 18;
+	private static final int MAX_HPCPMP_LENGTH = 14;
+	private static final int CURRENT_HPMPCP_EXP_SP_LENGTH = 38;
+	private static final int ENCHANTLEVEL_LENGTH = 4;
+	private static final int APPAREANCE_LENGTH = 15;
+	private static final int STATUS_LENGTH = 6;
+	private static final int STATS_LENGTH = 56;
+	private static final int ELEMENTALS_LENGTH = 14;
+	private static final int POSITION_LENGTH = 18;
+	private static final int SPEED_LENGTH = 18;
+	private static final int MULTIPLIER_LENGTH = 18;
+	private static final int COL_RADIUS_HEIGHT_LENGTH = 18;
+	private static final int ATK_ELEMENTAL_LENGTH = 5;
+	private static final int CLAN_LENGTH = 32;
+	private static final int SOCIAL_LENGTH = 22;
+	private static final int VITA_FAME_LENGTH = 15;
+	private static final int SLOTS_LENGTH = 11;
+	private static final int MOVEMENTS_LENGTH = 4;
+	private static final int COLOR_LENGTH = 10;
+	private static final int INVENTORY_LIMIT_LENGTH = 9;
+	private static final int TRUE_HERO_LENGTH = 9;
+
 	private static final byte[] MASKS =
 	{
 		(byte) 0xFF,
@@ -41,7 +66,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		_name = player.getAppearance().getVisibleName();
 		_title = player.isGM() && player.isInvisible() ? "[Invisible]" : player.getTitle();
 		_relation = calculateRelation(player);
-		_initSize = 5 + 4 + (16 + (_name.length() * 2)) + 18 + 14 + 38 + 4 + 15 + 6 + 56 + 14 + 18 + 18 + 18 + 18 + 5 + (32 + (_title.length() * 2)) + 22 + 15 + 11 + 4 + 10 + 9 + 9;
+		_initSize = 5 + RELATION_LENGTH + (BASIC_INFO_LENGTH + (_name.length() * 2)) + BASE_STATS_LENGTH + MAX_HPCPMP_LENGTH + CURRENT_HPMPCP_EXP_SP_LENGTH + ENCHANTLEVEL_LENGTH + APPAREANCE_LENGTH + STATUS_LENGTH + STATS_LENGTH + ELEMENTALS_LENGTH + POSITION_LENGTH + SPEED_LENGTH + MULTIPLIER_LENGTH + COL_RADIUS_HEIGHT_LENGTH + ATK_ELEMENTAL_LENGTH + (CLAN_LENGTH + (_title.length() * 2)) + SOCIAL_LENGTH + VITA_FAME_LENGTH + SLOTS_LENGTH + MOVEMENTS_LENGTH + COLOR_LENGTH + INVENTORY_LIMIT_LENGTH + TRUE_HERO_LENGTH;
 		_moveMultiplier = player.getMovementSpeedMultiplier();
 		_runSpd = (int) Math.round(player.getRunSpeed() / _moveMultiplier);
 		_walkSpd = (int) Math.round(player.getWalkSpeed() / _moveMultiplier);
@@ -57,12 +82,12 @@ public class UserInfo140 implements IClientOutgoingPacket
 		OutgoingPackets.USER_INFO.writeId(packet);
 		packet.writeD(_player.getObjectId());
 		packet.writeD(_initSize);
-		packet.writeH(24);
+		packet.writeH(BLOCK_COUNT);
 		packet.writeB(MASKS);
 
 		packet.writeD(_relation);
 
-		packet.writeH(16 + (_name.length() * 2));
+		packet.writeH(BASIC_INFO_LENGTH + (_name.length() * 2));
 		packet.writeString(_name);
 		packet.writeC(_player.isGM() ? 1 : 0);
 		packet.writeC(_player.getRace().ordinal());
@@ -71,7 +96,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeD(_player.getClassId().getId());
 		packet.writeC(_player.getLevel());
 
-		packet.writeH(18);
+		packet.writeH(BASE_STATS_LENGTH);
 		packet.writeH(_player.getSTR());
 		packet.writeH(_player.getDEX());
 		packet.writeH(_player.getCON());
@@ -81,12 +106,12 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeH(0);
 		packet.writeH(0);
 
-		packet.writeH(14);
+		packet.writeH(MAX_HPCPMP_LENGTH);
 		packet.writeD(_player.getMaxHp());
 		packet.writeD(_player.getMaxMp());
 		packet.writeD(_player.getMaxCp());
 
-		packet.writeH(38);
+		packet.writeH(CURRENT_HPMPCP_EXP_SP_LENGTH);
 		packet.writeD((int) Math.round(_player.getCurrentHp()));
 		packet.writeD((int) Math.round(_player.getCurrentMp()));
 		packet.writeD((int) _player.getCurrentCp());
@@ -94,23 +119,23 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeQ(_player.getExp());
 		packet.writeF((float) (_player.getExp() - ExperienceData.getInstance().getExpForLevel(_player.getLevel())) / (ExperienceData.getInstance().getExpForLevel(_player.getLevel() + 1) - ExperienceData.getInstance().getExpForLevel(_player.getLevel())));
 
-		packet.writeH(4);
+		packet.writeH(ENCHANTLEVEL_LENGTH);
 		packet.writeC(_player.isMounted() ? 0 : _player.getEnchantEffect());
 		packet.writeC(0);
 
-		packet.writeH(15);
+		packet.writeH(APPAREANCE_LENGTH);
 		packet.writeD(_player.getAppearance().getHairStyle());
 		packet.writeD(_player.getAppearance().getHairColor());
 		packet.writeD(_player.getAppearance().getFace());
 		packet.writeC(1);
 
-		packet.writeH(6);
+		packet.writeH(STATUS_LENGTH);
 		packet.writeC(_player.getMountType().ordinal());
 		packet.writeC(_player.getPrivateStoreType().getId());
 		packet.writeC(_player.hasDwarvenCraft() ? 1 : 0);
 		packet.writeC(0);
 
-		packet.writeH(56);
+		packet.writeH(STATS_LENGTH);
 		packet.writeH(_player.getActiveWeaponItem() != null ? 40 : 20);
 		packet.writeD((int) _player.getPAtk(null));
 		packet.writeD((int) _player.getPAtkSpd());
@@ -126,7 +151,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeD(0);
 		packet.writeD(0);
 
-		packet.writeH(14);
+		packet.writeH(ELEMENTALS_LENGTH);
 		packet.writeH(_player.getDefenseElementValue(Elementals.FIRE));
 		packet.writeH(_player.getDefenseElementValue(Elementals.WATER));
 		packet.writeH(_player.getDefenseElementValue(Elementals.WIND));
@@ -134,13 +159,13 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeH(_player.getDefenseElementValue(Elementals.HOLY));
 		packet.writeH(_player.getDefenseElementValue(Elementals.DARK));
 
-		packet.writeH(18);
+		packet.writeH(POSITION_LENGTH);
 		packet.writeD(_player.getX());
 		packet.writeD(_player.getY());
 		packet.writeD(_player.getZ());
 		packet.writeD(_player.getVehicle() != null ? _player.getVehicle().getObjectId() : 0);
 
-		packet.writeH(18);
+		packet.writeH(SPEED_LENGTH);
 		packet.writeH(_runSpd);
 		packet.writeH(_walkSpd);
 		packet.writeH(_swimRunSpd);
@@ -150,20 +175,20 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeH(_flyRunSpd);
 		packet.writeH(_flyWalkSpd);
 
-		packet.writeH(18);
+		packet.writeH(MULTIPLIER_LENGTH);
 		packet.writeF(_moveMultiplier);
 		packet.writeF(_player.getAttackSpeedMultiplier());
 
-		packet.writeH(18);
+		packet.writeH(COL_RADIUS_HEIGHT_LENGTH);
 		packet.writeF(_player.getCollisionRadius());
 		packet.writeF(_player.getCollisionHeight());
 
-		packet.writeH(5);
+		packet.writeH(ATK_ELEMENTAL_LENGTH);
 		final byte attackAttribute = _player.getAttackElement();
 		packet.writeC(attackAttribute);
 		packet.writeH(_player.getAttackElementValue(attackAttribute));
 
-		packet.writeH(32 + (_title.length() * 2));
+		packet.writeH(CLAN_LENGTH + (_title.length() * 2));
 		packet.writeString(_title);
 		packet.writeH(_player.getPledgeType());
 		packet.writeD(_player.getClanId());
@@ -175,7 +200,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeD(_player.getAllyCrestId());
 		packet.writeC(_player.isInPartyMatchRoom() ? 1 : 0);
 
-		packet.writeH(22);
+		packet.writeH(SOCIAL_LENGTH);
 		packet.writeC(_player.getPvpFlag());
 		packet.writeD(_player.getKarma());
 		packet.writeC(_player.isNoble() ? 1 : 0);
@@ -186,13 +211,14 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeH(_player.getRecomLeft());
 		packet.writeH(_player.getRecomHave());
 
-		packet.writeH(15);
+		packet.writeH(VITA_FAME_LENGTH);
 		packet.writeD(_player.getVitalityPoints());
 		packet.writeC(0);
 		packet.writeD(_player.getFame());
 		packet.writeD(0);
 
-		packet.writeH(11);
+		// Salvation 140 writes a total block size of 11 here: H(length) + 9 C payload bytes.
+		packet.writeH(SLOTS_LENGTH);
 		packet.writeC(_player.getInventory().getTalismanSlots());
 		packet.writeC(0);
 		packet.writeC(_player.getTeam().getId());
@@ -203,22 +229,22 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeC(0);
 		packet.writeC(0);
 
-		packet.writeH(4);
+		packet.writeH(MOVEMENTS_LENGTH);
 		packet.writeC(_player.isInsideZone(ZoneId.WATER) ? 1 : _player.isFlying() ? 2 : 0);
 		packet.writeC(_player.isRunning() ? 1 : 0);
 
-		packet.writeH(10);
+		packet.writeH(COLOR_LENGTH);
 		packet.writeD(_player.getAppearance().getNameColor());
 		packet.writeD(_player.getAppearance().getTitleColor());
 
-		packet.writeH(9);
+		packet.writeH(INVENTORY_LIMIT_LENGTH);
 		packet.writeH(0);
 		packet.writeH(0);
 		packet.writeH(_player.getInventoryLimit());
-		packet.writeC(0);
+		packet.writeC(_player.isCursedWeaponEquipped() ? CursedWeaponsManager.getInstance().getLevel(_player.getCursedWeaponEquippedId()) : 0);
 
-		packet.writeH(9);
-		packet.writeD(_player.isCursedWeaponEquipped() ? CursedWeaponsManager.getInstance().getLevel(_player.getCursedWeaponEquippedId()) : 0);
+		packet.writeH(TRUE_HERO_LENGTH);
+		packet.writeD(0);
 		packet.writeH(0);
 		packet.writeC(0);
 		return true;
