@@ -35,11 +35,12 @@ public enum ExIncomingPackets implements IIncomingPackets<GameClient>
 	REQUEST_EX_2ND_PASSWORD_CHECK(0x93, RequestEx2ndPasswordCheck::new, ConnectionState.AUTHENTICATED),
 	REQUEST_EX_2ND_PASSWORD_VERIFY(0x94, RequestEx2ndPasswordVerify::new, ConnectionState.AUTHENTICATED),
 	REQUEST_EX_2ND_PASSWORD_REQ(0x95, RequestEx2ndPasswordReq::new, ConnectionState.AUTHENTICATED),
-	REQUEST_EX_2ND_PASSWORD_CHECK_SALVATION_140(0xA6, RequestEx2ndPasswordCheck::new, ConnectionState.AUTHENTICATED),
+	REQUEST_EX_2ND_PASSWORD_CHECK_SALVATION_140(0xA6, RequestEx2ndPasswordCheckSalvation140::new, ConnectionState.AUTHENTICATED, ConnectionState.IN_GAME),
 	REQUEST_EX_2ND_PASSWORD_VERIFY_SALVATION_140(0xA7, RequestEx2ndPasswordVerify::new, ConnectionState.AUTHENTICATED),
 	REQUEST_EX_2ND_PASSWORD_REQ_SALVATION_140(0xA8, RequestEx2ndPasswordReq::new, ConnectionState.AUTHENTICATED),
 	REQUEST_EX_SALVATION_140_IGNORED_AUTHED(0x15E, RequestExSalvation140Ignored::new, ConnectionState.AUTHENTICATED),
 	REQUEST_MANOR_LIST(0x01, RequestManorList::new, ConnectionState.IN_GAME),
+	REQUEST_BR_NEW_ICON_CASH_BTN_WND_SALVATION_140(0xD1, RequestExSalvation140Ignored::new, ConnectionState.ENTERING_AND_IN_GAME),
 	REQUEST_PROCEDURE_CROP_LIST(0x02, RequestProcureCropList::new, ConnectionState.IN_GAME),
 	REQUEST_SET_SEED(0x03, RequestSetSeed::new, ConnectionState.IN_GAME),
 	REQUEST_SET_CROP(0x04, RequestSetCrop::new, ConnectionState.IN_GAME),
@@ -177,7 +178,11 @@ public enum ExIncomingPackets implements IIncomingPackets<GameClient>
 	REQUEST_BR_LECTURE_MARK(0x90, null, ConnectionState.IN_GAME),
 	REQUEST_GOODS_INVENTORY_INFO(0x91, null, ConnectionState.IN_GAME),
 	REQUEST_USE_GOODS_INVENTORY_ITEM(0x92, null, ConnectionState.IN_GAME),
-	REQUEST_HARDWARE_INFO(0x96, null, ConnectionState.values());
+	REQUEST_INZONE_PARTY_INFO_HISTORY_SALVATION_140(0x97, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME),
+	REQUEST_HARDWARE_INFO(0x96, null, ConnectionState.values()),
+	REQUEST_HARDWARE_INFO_SALVATION_140(0xAE, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME),
+	REQUEST_MENTOR_LIST_SALVATION_140(0xB6, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME),
+	EX_SEND_SELECTED_QUEST_ZONE_ID_SALVATION_140(0xFF, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME);
 	
 	public static final ExIncomingPackets[] PACKET_ARRAY;
 	static
