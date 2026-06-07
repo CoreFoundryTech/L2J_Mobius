@@ -66,8 +66,13 @@ public class CharacterSelect implements IClientIncomingPacket
 		_charSlot = packet.readD();
 		if (client.isSalvation140Client())
 		{
-			LOGGER_ACCOUNTING.info("CharacterSelect read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", remaining=" + packet.getReadableBytes());
-			System.out.println("SALVATION140 CharacterSelect read account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", remaining=" + packet.getReadableBytes());
+			final int remaining = packet.getReadableBytes();
+			if (remaining > 0)
+			{
+				packet.readB(remaining);
+			}
+			LOGGER_ACCOUNTING.info("CharacterSelect read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", skipped=" + remaining + ", remaining=" + packet.getReadableBytes());
+			System.out.println("SALVATION140 CharacterSelect read account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", skipped=" + remaining + ", remaining=" + packet.getReadableBytes());
 			return true;
 		}
 		
