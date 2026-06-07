@@ -174,7 +174,7 @@ public enum ExIncomingPackets implements IIncomingPackets<GameClient>
 	REQUEST_BR_BUI_PRODUCT(0x8C, RequestBrBuyProduct::new, ConnectionState.IN_GAME),
 	REQUEST_BR_RECENT_PRODUCT_LIST(0x8D, RequestBrRecentProductList::new, ConnectionState.IN_GAME),
 	REQUEST_BR_MINI_GAME_LOAD_SCORES(0x8E, null, ConnectionState.IN_GAME),
-	REQUEST_BR_MINI_GAME_INSERT_SCORE(0x8F, null, ConnectionState.IN_GAME),
+	REQUEST_BR_MINI_GAME_INSERT_SCORE(0x8F, RequestExBRMiniGameInsertScore::new, ConnectionState.IN_GAME),
 	REQUEST_BR_LECTURE_MARK(0x90, null, ConnectionState.IN_GAME),
 	REQUEST_GOODS_INVENTORY_INFO(0x91, null, ConnectionState.IN_GAME),
 	REQUEST_USE_GOODS_INVENTORY_ITEM(0x92, null, ConnectionState.IN_GAME),
