@@ -203,7 +203,7 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 		packet.writeC(0x00); // Premium account prompt.
 		packet.writeC(0x00); // Protocol 140 marker.
 
-		long lastAccess = 0;
+		long lastAccess = -1L;
 		if (_activeId == -1)
 		{
 			for (int i = 0; i < size; i++)
