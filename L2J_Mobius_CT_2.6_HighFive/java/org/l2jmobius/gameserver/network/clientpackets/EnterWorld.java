@@ -147,8 +147,9 @@ public class EnterWorld implements IClientIncomingPacket
 	public void run(GameClient client)
 	{
 		final PlayerInstance player = client.getPlayer();
+		final boolean salvation140Client = client.isSalvation140Client();
 		LOGGER_ACCOUNTING.info("EnterWorld run account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", player=" + (player == null ? "null" : player.getName()) + ", objectId=" + (player == null ? 0 : player.getObjectId()));
-		if (client.isSalvation140Client())
+		if (salvation140Client)
 		{
 			System.out.println("SALVATION140 EnterWorld run account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", player=" + (player == null ? "null" : player.getName()) + ", objectId=" + (player == null ? 0 : player.getObjectId()));
 		}
@@ -398,29 +399,39 @@ public class EnterWorld implements IClientIncomingPacket
 			player.checkRecoBonusTask();
 		}
 		
-		player.broadcastUserInfo();
-		
+		if (salvation140Client)
+		{
+			sendSalvation140EarlyBootstrap(client, player);
+		}
+		else
+		{
+			player.broadcastUserInfo();
+		}
+
 		// Send Macro List
 		player.getMacros().sendUpdate();
-		
-		// Send Item List
-		client.sendPacket(new ItemList(player, false));
-		
-		// Send Teleport Bookmark List
-		client.sendPacket(new ExGetBookMarkInfoPacket(player));
-		
-		// Send Shortcuts
-		client.sendPacket(new ShortCutInit(player));
-		
-		// Send Action list
-		player.sendPacket(ExBasicActionList.STATIC_PACKET);
-		
-		// Send Skill list
-		player.sendSkillList();
-		
-		// Send Dye Information
-		player.sendPacket(new HennaInfo(player));
-		
+
+		if (!salvation140Client)
+		{
+			// Send Item List
+			client.sendPacket(new ItemList(player, false));
+
+			// Send Teleport Bookmark List
+			client.sendPacket(new ExGetBookMarkInfoPacket(player));
+
+			// Send Shortcuts
+			client.sendPacket(new ShortCutInit(player));
+
+			// Send Action list
+			player.sendPacket(ExBasicActionList.STATIC_PACKET);
+
+			// Send Skill list
+			player.sendSkillList();
+
+			// Send Dye Information
+			player.sendPacket(new HennaInfo(player));
+		}
+
 		Quest.playerEnter(player);
 		
 		// Faction System
@@ -432,7 +443,10 @@ public class EnterWorld implements IClientIncomingPacket
 				player.getAppearance().setTitleColor(Config.FACTION_GOOD_NAME_COLOR);
 				player.sendMessage("Welcome " + player.getName() + ", you are fighting for the " + Config.FACTION_GOOD_TEAM_NAME + " faction.");
 				player.sendPacket(new ExShowScreenMessage("Welcome " + player.getName() + ", you are fighting for the " + Config.FACTION_GOOD_TEAM_NAME + " faction.", 10000));
-				player.broadcastUserInfo(); // for seeing self name color
+				if (!salvation140Client)
+				{
+					player.broadcastUserInfo(); // for seeing self name color
+				}
 			}
 			else if (player.isEvil())
 			{
@@ -440,7 +454,10 @@ public class EnterWorld implements IClientIncomingPacket
 				player.getAppearance().setTitleColor(Config.FACTION_EVIL_NAME_COLOR);
 				player.sendMessage("Welcome " + player.getName() + ", you are fighting for the " + Config.FACTION_EVIL_TEAM_NAME + " faction.");
 				player.sendPacket(new ExShowScreenMessage("Welcome " + player.getName() + ", you are fighting for the " + Config.FACTION_EVIL_TEAM_NAME + " faction.", 10000));
-				player.broadcastUserInfo(); // for seeing self name color
+				if (!salvation140Client)
+				{
+					player.broadcastUserInfo(); // for seeing self name color
+				}
 			}
 		}
 		
@@ -449,7 +466,10 @@ public class EnterWorld implements IClientIncomingPacket
 			loadTutorial(player);
 		}
 		
-		player.sendPacket(new QuestList(player));
+		if (!salvation140Client)
+		{
+			player.sendPacket(new QuestList(player));
+		}
 		
 		if (Config.PLAYER_SPAWN_PROTECTION > 0)
 		{
@@ -480,7 +500,10 @@ public class EnterWorld implements IClientIncomingPacket
 		
 		player.updateEffectIcons();
 		
-		player.sendPacket(new EtcStatusUpdate(player));
+		if (!salvation140Client)
+		{
+			player.sendPacket(new EtcStatusUpdate(player));
+		}
 		
 		// Expand Skill
 		player.sendPacket(new ExStorageMaxCount(player));
@@ -655,7 +678,20 @@ public class EnterWorld implements IClientIncomingPacket
 		// Unstuck players that had client open when server crashed.
 		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
-	
+
+	private void sendSalvation140EarlyBootstrap(GameClient client, PlayerInstance player)
+	{
+		System.out.println("SALVATION140 EnterWorld bootstrap account=" + client.getAccountName() + ", player=" + player.getName() + ", skip=UserInfo0x32");
+		player.sendPacket(new HennaInfo(player));
+		player.sendSkillList();
+		player.sendPacket(new EtcStatusUpdate(player));
+		player.sendPacket(new QuestList(player));
+		client.sendPacket(new ItemList(player, false));
+		client.sendPacket(new ExGetBookMarkInfoPacket(player));
+		client.sendPacket(new ShortCutInit(player));
+		player.sendPacket(ExBasicActionList.STATIC_PACKET);
+	}
+
 	private void engage(PlayerInstance player)
 	{
 		final int chaId = player.getObjectId();
