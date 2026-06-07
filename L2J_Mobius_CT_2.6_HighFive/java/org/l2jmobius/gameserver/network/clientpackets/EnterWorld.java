@@ -88,6 +88,7 @@ import org.l2jmobius.gameserver.network.serverpackets.ExShowContactList;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowContactListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.ExStorageMaxCount;
+import org.l2jmobius.gameserver.network.serverpackets.ExStorageMaxCountSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoAbnormalVisualEffect;
 import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoCubic;
 import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoEquipSlot;
@@ -542,7 +543,8 @@ public class EnterWorld implements IClientIncomingPacket
 		// Expand Skill
 		if (salvation140Client)
 		{
-			logSalvation140Outbound("WARNING skipped H5 ExStorageMaxCount");
+			logSalvation140Outbound("ExStorageMaxCountSalvation140");
+			player.sendPacket(new ExStorageMaxCountSalvation140(player));
 		}
 		else
 		{
@@ -734,7 +736,12 @@ public class EnterWorld implements IClientIncomingPacket
 		{
 			OfflineTradersTable.onTransaction(player, true, false);
 		}
-		
+
+		if (salvation140Client)
+		{
+			sendSalvation140SelfInfoCluster(player, "final");
+		}
+
 		// Prevent relogin in game gfx.
 		player.sendPacket(new ValidateLocation(player));
 		
@@ -755,16 +762,7 @@ public class EnterWorld implements IClientIncomingPacket
 		player.sendPacket(new SkillListSalvation140(player));
 		logSalvation140Outbound("EtcStatusUpdate");
 		player.sendPacket(new EtcStatusUpdate(player));
-		logSalvation140Outbound("UserInfo140");
-		player.sendPacket(new UserInfo140(player));
-		logSalvation140Outbound("ExUserInfoInvenWeight");
-		player.sendPacket(new ExUserInfoInvenWeight(player));
-		logSalvation140Outbound("ExUserInfoEquipSlot");
-		player.sendPacket(new ExUserInfoEquipSlot(player));
-		logSalvation140Outbound("ExUserInfoCubic");
-		player.sendPacket(new ExUserInfoCubic(player));
-		logSalvation140Outbound("ExUserInfoAbnormalVisualEffect");
-		player.sendPacket(new ExUserInfoAbnormalVisualEffect(player));
+		sendSalvation140SelfInfoCluster(player, "early");
 		logSalvation140Outbound("QuestList");
 		player.sendPacket(new QuestList(player));
 		logSalvation140Outbound("ExGetBookMarkInfo");
@@ -785,6 +783,20 @@ public class EnterWorld implements IClientIncomingPacket
 		client.sendPacket(new ShortCutInit(player));
 		logSalvation140Outbound("ExBasicActionListSalvation140");
 		player.sendPacket(ExBasicActionListSalvation140.STATIC_PACKET);
+	}
+
+	private void sendSalvation140SelfInfoCluster(PlayerInstance player, String phase)
+	{
+		logSalvation140Outbound(phase + " UserInfo140");
+		player.sendPacket(new UserInfo140(player));
+		logSalvation140Outbound(phase + " ExUserInfoInvenWeight");
+		player.sendPacket(new ExUserInfoInvenWeight(player));
+		logSalvation140Outbound(phase + " ExUserInfoEquipSlot");
+		player.sendPacket(new ExUserInfoEquipSlot(player));
+		logSalvation140Outbound(phase + " ExUserInfoCubic");
+		player.sendPacket(new ExUserInfoCubic(player));
+		logSalvation140Outbound(phase + " ExUserInfoAbnormalVisualEffect");
+		player.sendPacket(new ExUserInfoAbnormalVisualEffect(player));
 	}
 
 	private void logSalvation140Outbound(String packetName)
