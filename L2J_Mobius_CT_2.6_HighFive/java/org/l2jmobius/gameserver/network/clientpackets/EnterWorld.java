@@ -73,6 +73,7 @@ import org.l2jmobius.gameserver.network.serverpackets.Die;
 import org.l2jmobius.gameserver.network.serverpackets.EtcStatusUpdate;
 import org.l2jmobius.gameserver.network.serverpackets.ExAdenaInvenCount;
 import org.l2jmobius.gameserver.network.serverpackets.ExBasicActionList;
+import org.l2jmobius.gameserver.network.serverpackets.ExBasicActionListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ExBRNewIconCashBtnWnd;
 import org.l2jmobius.gameserver.network.serverpackets.ExEnterWorldPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ExGetBookMarkInfoPacket;
@@ -93,6 +94,7 @@ import org.l2jmobius.gameserver.network.serverpackets.FriendList;
 import org.l2jmobius.gameserver.network.serverpackets.L2FriendListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.HennaInfo;
 import org.l2jmobius.gameserver.network.serverpackets.ItemList;
+import org.l2jmobius.gameserver.network.serverpackets.ItemListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.MagicAndSkillList;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
 import org.l2jmobius.gameserver.network.serverpackets.PledgeShowMemberListAll;
@@ -101,6 +103,7 @@ import org.l2jmobius.gameserver.network.serverpackets.PledgeSkillList;
 import org.l2jmobius.gameserver.network.serverpackets.PledgeStatusChanged;
 import org.l2jmobius.gameserver.network.serverpackets.QuestList;
 import org.l2jmobius.gameserver.network.serverpackets.ShortCutInit;
+import org.l2jmobius.gameserver.network.serverpackets.SkillListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.SkillCoolTime;
 import org.l2jmobius.gameserver.network.serverpackets.SSQInfo;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
@@ -708,7 +711,7 @@ public class EnterWorld implements IClientIncomingPacket
 		player.sendPacket(ExLightingCandleEvent.DISABLED);
 		player.sendPacket(new ExEnterWorldPacket());
 		player.sendPacket(new HennaInfo(player));
-		player.sendSkillList();
+		player.sendPacket(new SkillListSalvation140(player));
 		player.sendPacket(new EtcStatusUpdate(player));
 		player.sendPacket(new UserInfo140(player));
 		player.sendPacket(new ExUserInfoInvenWeight(player));
@@ -718,10 +721,10 @@ public class EnterWorld implements IClientIncomingPacket
 		player.sendPacket(new QuestList(player));
 		client.sendPacket(new ExGetBookMarkInfoPacket(player));
 		player.sendPacket(new SSQInfo());
-		client.sendPacket(new ItemList(player, false));
+		client.sendPacket(new ItemListSalvation140(2, player));
 		player.sendPacket(new ExAdenaInvenCount(player));
 		client.sendPacket(new ShortCutInit(player));
-		player.sendPacket(ExBasicActionList.STATIC_PACKET);
+		player.sendPacket(ExBasicActionListSalvation140.STATIC_PACKET);
 	}
 
 	private void engage(PlayerInstance player)

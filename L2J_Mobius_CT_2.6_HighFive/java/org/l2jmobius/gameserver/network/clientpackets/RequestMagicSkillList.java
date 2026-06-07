@@ -19,6 +19,7 @@ package org.l2jmobius.gameserver.network.clientpackets;
 import org.l2jmobius.commons.network.PacketReader;
 import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
 import org.l2jmobius.gameserver.network.GameClient;
+import org.l2jmobius.gameserver.network.serverpackets.SkillListSalvation140;
 
 /**
  * Request magic/skill list.
@@ -47,6 +48,8 @@ public class RequestMagicSkillList implements IClientIncomingPacket
 		if (client.isSalvation140Client())
 		{
 			System.out.println("SALVATION140 RequestMagicSkillList account=" + client.getAccountName() + ", player=" + player.getName() + ", skipped=" + _skipped);
+			player.sendPacket(new SkillListSalvation140(player));
+			return;
 		}
 		player.sendSkillList();
 	}
