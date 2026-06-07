@@ -17,6 +17,7 @@
 package org.l2jmobius.gameserver.network.serverpackets;
 
 import org.l2jmobius.commons.network.PacketWriter;
+import org.l2jmobius.gameserver.network.ClientProtocolProfile;
 import org.l2jmobius.gameserver.network.OutgoingPackets;
 
 /**
@@ -27,18 +28,33 @@ public class Ex2ndPasswordCheck implements IClientOutgoingPacket
 	public static final int PASSWORD_NEW = 0x00;
 	public static final int PASSWORD_PROMPT = 0x01;
 	public static final int PASSWORD_OK = 0x02;
-	
+
 	private final int _windowType;
-	
+	private final ClientProtocolProfile _protocolProfile;
+
 	public Ex2ndPasswordCheck(int windowType)
 	{
-		_windowType = windowType;
+		this(windowType, ClientProtocolProfile.HIGH_FIVE);
 	}
-	
+
+	public Ex2ndPasswordCheck(int windowType, ClientProtocolProfile protocolProfile)
+	{
+		_windowType = windowType;
+		_protocolProfile = protocolProfile;
+	}
+
 	@Override
 	public boolean write(PacketWriter packet)
 	{
-		OutgoingPackets.EX_2ND_PASSWORD_CHECK.writeId(packet);
+		if (_protocolProfile == ClientProtocolProfile.SALVATION_140)
+		{
+			packet.writeC(0xFE);
+			packet.writeH(0x105);
+		}
+		else
+		{
+			OutgoingPackets.EX_2ND_PASSWORD_CHECK.writeId(packet);
+		}
 		packet.writeD(_windowType);
 		packet.writeD(0x00);
 		return true;

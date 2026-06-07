@@ -38,7 +38,7 @@ public class RequestEx2ndPasswordCheck implements IClientIncomingPacket
 	{
 		if (!SecondaryAuthData.getInstance().isEnabled() || client.getSecondaryAuth().isAuthed())
 		{
-			client.sendPacket(new Ex2ndPasswordCheck(Ex2ndPasswordCheck.PASSWORD_OK));
+			client.sendPacket(new Ex2ndPasswordCheck(Ex2ndPasswordCheck.PASSWORD_OK, client.getProtocolProfile()));
 			return;
 		}
 		
