@@ -71,6 +71,7 @@ import org.l2jmobius.gameserver.network.serverpackets.ActionFailed;
 import org.l2jmobius.gameserver.network.serverpackets.CreatureSay;
 import org.l2jmobius.gameserver.network.serverpackets.Die;
 import org.l2jmobius.gameserver.network.serverpackets.EtcStatusUpdate;
+import org.l2jmobius.gameserver.network.serverpackets.ExAdenaInvenCount;
 import org.l2jmobius.gameserver.network.serverpackets.ExBasicActionList;
 import org.l2jmobius.gameserver.network.serverpackets.ExEnterWorldPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ExGetBookMarkInfoPacket;
@@ -97,6 +98,7 @@ import org.l2jmobius.gameserver.network.serverpackets.PledgeStatusChanged;
 import org.l2jmobius.gameserver.network.serverpackets.QuestList;
 import org.l2jmobius.gameserver.network.serverpackets.ShortCutInit;
 import org.l2jmobius.gameserver.network.serverpackets.SkillCoolTime;
+import org.l2jmobius.gameserver.network.serverpackets.SSQInfo;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 import org.l2jmobius.gameserver.network.serverpackets.UserInfo140;
 import org.l2jmobius.gameserver.network.serverpackets.ValidateLocation;
@@ -700,8 +702,10 @@ public class EnterWorld implements IClientIncomingPacket
 		player.sendPacket(new ExUserInfoCubic(player));
 		player.sendPacket(new ExUserInfoAbnormalVisualEffect(player));
 		player.sendPacket(new QuestList(player));
-		client.sendPacket(new ItemList(player, false));
 		client.sendPacket(new ExGetBookMarkInfoPacket(player));
+		player.sendPacket(new SSQInfo());
+		client.sendPacket(new ItemList(player, false));
+		player.sendPacket(new ExAdenaInvenCount(player));
 		client.sendPacket(new ShortCutInit(player));
 		player.sendPacket(ExBasicActionList.STATIC_PACKET);
 	}
