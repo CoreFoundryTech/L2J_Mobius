@@ -57,7 +57,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		OutgoingPackets.USER_INFO.writeId(packet);
 		packet.writeD(_player.getObjectId());
 		packet.writeD(_initSize);
-		packet.writeH(23);
+		packet.writeH(24);
 		packet.writeB(MASKS);
 
 		packet.writeD(_relation);
