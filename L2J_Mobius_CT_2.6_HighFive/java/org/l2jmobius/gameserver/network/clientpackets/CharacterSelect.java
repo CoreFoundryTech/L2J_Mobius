@@ -132,7 +132,10 @@ public class CharacterSelect implements IClientIncomingPacket
 					}
 					
 					// Selected character is banned (compatibility with previous versions).
-					if (info.getAccessLevel() < 0)
+					// Salvation/Classic 140 character selection treats access levels above -100 as available.
+					// Keep the server-side gate consistent with CharSelectionInfo, otherwise the client can
+					// show a selectable character that is rejected immediately on Start.
+					if (client.isSalvation140Client() ? (info.getAccessLevel() <= -100) : (info.getAccessLevel() < 0))
 					{
 						client.close(ServerClose.STATIC_PACKET);
 						return;
