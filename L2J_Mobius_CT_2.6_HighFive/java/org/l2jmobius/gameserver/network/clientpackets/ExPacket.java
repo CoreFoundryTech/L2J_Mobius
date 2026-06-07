@@ -35,6 +35,10 @@ public class ExPacket implements IClientIncomingPacket
 	public boolean read(GameClient client, PacketReader packet)
 	{
 		final int exPacketId = packet.readH() & 0xFFFF;
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 ExPacket read account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", ex=0x" + String.format("%04X", exPacketId) + ", remaining=" + packet.getReadableBytes());
+		}
 		if ((exPacketId < 0) || (exPacketId >= ExIncomingPackets.PACKET_ARRAY.length))
 		{
 			return false;
@@ -43,6 +47,10 @@ public class ExPacket implements IClientIncomingPacket
 		_exIncomingPacket = ExIncomingPackets.PACKET_ARRAY[exPacketId];
 		if (_exIncomingPacket == null)
 		{
+			if (client.isSalvation140Client())
+			{
+				System.out.println("SALVATION140 ExPacket unknown account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", ex=0x" + String.format("%04X", exPacketId));
+			}
 			// LOGGER.finer(getClass().getSimpleName() + ": Unknown packet: " + Integer.toHexString(exPacketId));
 			return false;
 		}
@@ -56,8 +64,16 @@ public class ExPacket implements IClientIncomingPacket
 	{
 		if (!_exIncomingPacket.getConnectionStates().contains(client.getConnectionState()))
 		{
+			if (client.isSalvation140Client())
+			{
+				System.out.println("SALVATION140 ExPacket invalid-state account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", packet=" + _exIncomingPacket);
+			}
 			// LOGGER.finer(_exIncomingPacket + ": Connection at invalid state: " + client.getConnectionState() + " Required State: " + _exIncomingPacket.getConnectionStates());
 			return;
+		}
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 ExPacket run account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", packet=" + _exIncomingPacket);
 		}
 		_exPacket.run(client);
 	}

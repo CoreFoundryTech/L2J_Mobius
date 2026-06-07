@@ -35,6 +35,10 @@ public class RequestGotoLobby implements IClientIncomingPacket
 	@Override
 	public void run(GameClient client)
 	{
-		client.sendPacket(new CharSelectionInfo(client.getAccountName(), client.getSessionId().playOkID1));
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 RequestGotoLobby account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", profile=" + client.getProtocolProfile());
+		}
+		client.sendPacket(new CharSelectionInfo(client.getAccountName(), client.getSessionId().playOkID1, client.getProtocolProfile()));
 	}
 }
