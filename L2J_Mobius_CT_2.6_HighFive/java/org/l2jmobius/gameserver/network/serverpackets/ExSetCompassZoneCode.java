@@ -17,6 +17,8 @@
 package org.l2jmobius.gameserver.network.serverpackets;
 
 import org.l2jmobius.commons.network.PacketWriter;
+import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
+import org.l2jmobius.gameserver.model.zone.ZoneId;
 import org.l2jmobius.gameserver.network.OutgoingPackets;
 
 /**
@@ -37,6 +39,34 @@ public class ExSetCompassZoneCode implements IClientOutgoingPacket
 	public ExSetCompassZoneCode(int val)
 	{
 		_zoneType = val;
+	}
+
+	public ExSetCompassZoneCode(PlayerInstance player)
+	{
+		if (player.isInsideZone(ZoneId.ALTERED))
+		{
+			_zoneType = ALTEREDZONE;
+		}
+		else if (player.isInsideZone(ZoneId.SIEGE))
+		{
+			_zoneType = SIEGEWARZONE2;
+		}
+		else if (player.isInsideZone(ZoneId.PVP))
+		{
+			_zoneType = PVPZONE;
+		}
+		else if (player.isIn7sDungeon())
+		{
+			_zoneType = SEVENSIGNSZONE;
+		}
+		else if (player.isInsideZone(ZoneId.PEACE))
+		{
+			_zoneType = PEACEZONE;
+		}
+		else
+		{
+			_zoneType = GENERALZONE;
+		}
 	}
 	
 	@Override

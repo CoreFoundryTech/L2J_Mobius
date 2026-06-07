@@ -46,6 +46,7 @@ import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.IClientOutgoingPacket;
 import org.l2jmobius.gameserver.network.serverpackets.LeaveWorld;
 import org.l2jmobius.gameserver.network.serverpackets.NpcSay;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ServerClose;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 import org.l2jmobius.gameserver.security.SecondaryPasswordAuth;
@@ -269,6 +270,10 @@ public class GameClient extends ChannelInboundHandler<GameClient>
 				else if (packet instanceof NpcInfo)
 				{
 					((NpcInfo) packet).setLang(lang);
+				}
+				else if (packet instanceof NpcInfoSalvation140)
+				{
+					((NpcInfoSalvation140) packet).setLang(lang);
 				}
 			}
 		}

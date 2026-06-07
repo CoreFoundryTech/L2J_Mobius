@@ -52,6 +52,7 @@ import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.DoorStatusUpdate;
 import org.l2jmobius.gameserver.network.serverpackets.OnEventTrigger;
 import org.l2jmobius.gameserver.network.serverpackets.StaticObject;
+import org.l2jmobius.gameserver.network.serverpackets.StaticObjectSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 
 public class DoorInstance extends Creature
@@ -425,6 +426,8 @@ public class DoorInstance extends Creature
 		
 		final StaticObject su = new StaticObject(this, false);
 		final StaticObject targetableSu = new StaticObject(this, true);
+		final StaticObjectSalvation140 suSalvation140 = new StaticObjectSalvation140(this, false);
+		final StaticObjectSalvation140 targetableSuSalvation140 = new StaticObjectSalvation140(this, true);
 		final DoorStatusUpdate dsu = new DoorStatusUpdate(this);
 		OnEventTrigger oe = null;
 		if (getEmitter() > 0)
@@ -441,11 +444,11 @@ public class DoorInstance extends Creature
 			
 			if (player.isGM() || (((getCastle() != null) && (getCastle().getResidenceId() > 0)) || ((getFort() != null) && (getFort().getResidenceId() > 0))))
 			{
-				player.sendPacket(targetableSu);
+				player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? targetableSuSalvation140 : targetableSu);
 			}
 			else
 			{
-				player.sendPacket(su);
+				player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? suSalvation140 : su);
 			}
 			
 			player.sendPacket(dsu);
@@ -669,7 +672,7 @@ public class DoorInstance extends Creature
 				player.sendPacket(new OnEventTrigger(this, _open));
 			}
 			
-			player.sendPacket(new StaticObject(this, player.isGM()));
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new StaticObjectSalvation140(this, player.isGM()) : new StaticObject(this, player.isGM()));
 		}
 	}
 	

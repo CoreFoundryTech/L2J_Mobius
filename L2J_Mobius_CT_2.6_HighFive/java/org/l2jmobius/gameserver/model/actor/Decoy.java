@@ -26,6 +26,7 @@ import org.l2jmobius.gameserver.model.items.Weapon;
 import org.l2jmobius.gameserver.model.items.instance.ItemInstance;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.CharInfo;
+import org.l2jmobius.gameserver.network.serverpackets.CharInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.IClientOutgoingPacket;
 import org.l2jmobius.gameserver.taskmanager.DecayTaskManager;
 
@@ -51,7 +52,7 @@ public abstract class Decoy extends Creature
 	public void onSpawn()
 	{
 		super.onSpawn();
-		sendPacket(new CharInfo(this, false));
+		sendPacket((_owner.getClient() != null) && _owner.getClient().isSalvation140Client() ? new CharInfoSalvation140(this, false) : new CharInfo(this, false));
 	}
 	
 	@Override
@@ -61,7 +62,7 @@ public abstract class Decoy extends Creature
 		{
 			if (isVisibleFor(player))
 			{
-				player.sendPacket(new CharInfo(this, false));
+				player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new CharInfoSalvation140(this, false) : new CharInfo(this, false));
 			}
 		});
 	}
@@ -156,7 +157,7 @@ public abstract class Decoy extends Creature
 	@Override
 	public void sendInfo(PlayerInstance player)
 	{
-		player.sendPacket(new CharInfo(this, false));
+		player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new CharInfoSalvation140(this, false) : new CharInfo(this, false));
 	}
 	
 	@Override

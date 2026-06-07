@@ -93,8 +93,10 @@ import org.l2jmobius.gameserver.network.serverpackets.ExChangeNpcState;
 import org.l2jmobius.gameserver.network.serverpackets.FakePlayerInfo;
 import org.l2jmobius.gameserver.network.serverpackets.MagicSkillUse;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.NpcSay;
 import org.l2jmobius.gameserver.network.serverpackets.ServerObjectInfo;
+import org.l2jmobius.gameserver.network.serverpackets.ServerObjectInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.SocialAction;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 import org.l2jmobius.gameserver.taskmanager.DecayTaskManager;
@@ -389,17 +391,18 @@ public class Npc extends Creature
 				return;
 			}
 			
+			final boolean salvation140Client = (player.getClient() != null) && player.getClient().isSalvation140Client();
 			if (_isFakePlayer)
 			{
 				player.sendPacket(new FakePlayerInfo(this));
 			}
 			else if (getRunSpeed() == 0)
 			{
-				player.sendPacket(new ServerObjectInfo(this, player));
+				player.sendPacket(salvation140Client ? new ServerObjectInfoSalvation140(this, player) : new ServerObjectInfo(this, player));
 			}
 			else if (isSpawned())
 			{
-				player.sendPacket(new AbstractNpcInfo.NpcInfo(this, player));
+				player.sendPacket(salvation140Client ? new NpcInfoSalvation140(this) : new AbstractNpcInfo.NpcInfo(this, player));
 			}
 		});
 	}
@@ -1462,17 +1465,18 @@ public class Npc extends Creature
 	{
 		if (isVisibleFor(player))
 		{
+			final boolean salvation140Client = (player.getClient() != null) && player.getClient().isSalvation140Client();
 			if (_isFakePlayer)
 			{
 				player.sendPacket(new FakePlayerInfo(this));
 			}
 			else if (getRunSpeed() == 0)
 			{
-				player.sendPacket(new ServerObjectInfo(this, player));
+				player.sendPacket(salvation140Client ? new ServerObjectInfoSalvation140(this, player) : new ServerObjectInfo(this, player));
 			}
 			else
 			{
-				player.sendPacket(new AbstractNpcInfo.NpcInfo(this, player));
+				player.sendPacket(salvation140Client ? new NpcInfoSalvation140(this) : new AbstractNpcInfo.NpcInfo(this, player));
 			}
 		}
 	}

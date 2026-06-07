@@ -19,6 +19,7 @@ package org.l2jmobius.gameserver.model.actor.instance;
 import org.l2jmobius.gameserver.ai.CreatureAI;
 import org.l2jmobius.gameserver.enums.InstanceType;
 import org.l2jmobius.gameserver.model.Location;
+import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.stat.StaticObjectStat;
 import org.l2jmobius.gameserver.model.actor.status.StaticObjectStatus;
@@ -28,6 +29,7 @@ import org.l2jmobius.gameserver.model.items.instance.ItemInstance;
 import org.l2jmobius.gameserver.model.skills.Skill;
 import org.l2jmobius.gameserver.network.serverpackets.ShowTownMap;
 import org.l2jmobius.gameserver.network.serverpackets.StaticObject;
+import org.l2jmobius.gameserver.network.serverpackets.StaticObjectSalvation140;
 
 /**
  * Static Object instance.
@@ -163,7 +165,7 @@ public class StaticObjectInstance extends Creature
 	public void setMeshIndex(int meshIndex)
 	{
 		_meshIndex = meshIndex;
-		broadcastPacket(new StaticObject(this));
+		World.getInstance().forEachVisibleObject(this, PlayerInstance.class, this::sendInfo);
 	}
 	
 	/**
@@ -187,7 +189,7 @@ public class StaticObjectInstance extends Creature
 	@Override
 	public void sendInfo(PlayerInstance player)
 	{
-		player.sendPacket(new StaticObject(this));
+		player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new StaticObjectSalvation140(this) : new StaticObject(this));
 	}
 	
 	@Override

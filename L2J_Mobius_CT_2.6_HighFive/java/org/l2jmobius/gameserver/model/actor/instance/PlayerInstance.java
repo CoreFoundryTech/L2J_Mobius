@@ -260,6 +260,7 @@ import org.l2jmobius.gameserver.network.serverpackets.AbstractHtmlPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ActionFailed;
 import org.l2jmobius.gameserver.network.serverpackets.ChangeWaitType;
 import org.l2jmobius.gameserver.network.serverpackets.CharInfo;
+import org.l2jmobius.gameserver.network.serverpackets.CharInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ConfirmDlg;
 import org.l2jmobius.gameserver.network.serverpackets.EtcStatusUpdate;
 import org.l2jmobius.gameserver.network.serverpackets.ExAutoSoulShot;
@@ -4096,17 +4097,19 @@ public class PlayerInstance extends Playable
 	public void broadcastCharInfo()
 	{
 		final CharInfo charInfo = new CharInfo(this, false);
+		final CharInfoSalvation140 charInfoSalvation140 = new CharInfoSalvation140(this, false);
 		World.getInstance().forEachVisibleObject(this, PlayerInstance.class, player ->
 		{
 			if (isVisibleFor(player))
 			{
+				final boolean salvation140Client = (player.getClient() != null) && player.getClient().isSalvation140Client();
 				if (isInvisible() && player.canOverrideCond(PlayerCondOverride.SEE_ALL_PLAYERS))
 				{
-					player.sendPacket(new CharInfo(this, true));
+					player.sendPacket(salvation140Client ? new CharInfoSalvation140(this, true) : new CharInfo(this, true));
 				}
 				else
 				{
-					player.sendPacket(charInfo);
+					player.sendPacket(salvation140Client ? charInfoSalvation140 : charInfo);
 				}
 			}
 		});
@@ -13183,11 +13186,13 @@ public class PlayerInstance extends Playable
 	@Override
 	public void sendInfo(PlayerInstance player)
 	{
+		final boolean salvation140Client = (player.getClient() != null) && player.getClient().isSalvation140Client();
+		final boolean gmSeeInvis = isInvisible() && player.canOverrideCond(PlayerCondOverride.SEE_ALL_PLAYERS);
 		if (isInBoat())
 		{
 			setXYZ(getBoat().getLocation());
 			
-			player.sendPacket(new CharInfo(this, isInvisible() && player.canOverrideCond(PlayerCondOverride.SEE_ALL_PLAYERS)));
+			player.sendPacket(salvation140Client ? new CharInfoSalvation140(this, gmSeeInvis) : new CharInfo(this, gmSeeInvis));
 			player.sendPacket(new ExBrExtraUserInfo(this));
 			final int relation1 = getRelation(player);
 			final int relation2 = player.getRelation(this);
@@ -13214,7 +13219,7 @@ public class PlayerInstance extends Playable
 		else if (isInAirShip())
 		{
 			setXYZ(getAirShip().getLocation());
-			player.sendPacket(new CharInfo(this, isInvisible() && player.canOverrideCond(PlayerCondOverride.SEE_ALL_PLAYERS)));
+			player.sendPacket(salvation140Client ? new CharInfoSalvation140(this, gmSeeInvis) : new CharInfo(this, gmSeeInvis));
 			player.sendPacket(new ExBrExtraUserInfo(this));
 			final int relation1 = getRelation(player);
 			final int relation2 = player.getRelation(this);
@@ -13240,7 +13245,7 @@ public class PlayerInstance extends Playable
 		}
 		else
 		{
-			player.sendPacket(new CharInfo(this, isInvisible() && player.canOverrideCond(PlayerCondOverride.SEE_ALL_PLAYERS)));
+			player.sendPacket(salvation140Client ? new CharInfoSalvation140(this, gmSeeInvis) : new CharInfo(this, gmSeeInvis));
 			player.sendPacket(new ExBrExtraUserInfo(this));
 			final int relation1 = getRelation(player);
 			final int relation2 = player.getRelation(this);

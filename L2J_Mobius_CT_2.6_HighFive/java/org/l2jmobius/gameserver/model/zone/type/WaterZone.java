@@ -24,7 +24,9 @@ import org.l2jmobius.gameserver.model.zone.ZoneId;
 import org.l2jmobius.gameserver.model.zone.ZoneType;
 import org.l2jmobius.gameserver.network.serverpackets.AbstractNpcInfo;
 import org.l2jmobius.gameserver.network.serverpackets.FakePlayerInfo;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ServerObjectInfo;
+import org.l2jmobius.gameserver.network.serverpackets.ServerObjectInfoSalvation140;
 
 public class WaterZone extends ZoneType
 {
@@ -55,17 +57,18 @@ public class WaterZone extends ZoneType
 		{
 			World.getInstance().forEachVisibleObject(creature, PlayerInstance.class, player ->
 			{
+				final boolean salvation140Client = (player.getClient() != null) && player.getClient().isSalvation140Client();
 				if (creature.isFakePlayer())
 				{
 					player.sendPacket(new FakePlayerInfo((Npc) creature));
 				}
 				else if (creature.getRunSpeed() == 0)
 				{
-					player.sendPacket(new ServerObjectInfo((Npc) creature, player));
+					player.sendPacket(salvation140Client ? new ServerObjectInfoSalvation140((Npc) creature, player) : new ServerObjectInfo((Npc) creature, player));
 				}
 				else
 				{
-					player.sendPacket(new AbstractNpcInfo.NpcInfo((Npc) creature, player));
+					player.sendPacket(salvation140Client ? new NpcInfoSalvation140((Npc) creature) : new AbstractNpcInfo.NpcInfo((Npc) creature, player));
 				}
 			});
 		}
@@ -90,17 +93,18 @@ public class WaterZone extends ZoneType
 		{
 			World.getInstance().forEachVisibleObject(creature, PlayerInstance.class, player ->
 			{
+				final boolean salvation140Client = (player.getClient() != null) && player.getClient().isSalvation140Client();
 				if (creature.isFakePlayer())
 				{
 					player.sendPacket(new FakePlayerInfo((Npc) creature));
 				}
 				else if (creature.getRunSpeed() == 0)
 				{
-					player.sendPacket(new ServerObjectInfo((Npc) creature, player));
+					player.sendPacket(salvation140Client ? new ServerObjectInfoSalvation140((Npc) creature, player) : new ServerObjectInfo((Npc) creature, player));
 				}
 				else
 				{
-					player.sendPacket(new AbstractNpcInfo.NpcInfo((Npc) creature, player));
+					player.sendPacket(salvation140Client ? new NpcInfoSalvation140((Npc) creature) : new AbstractNpcInfo.NpcInfo((Npc) creature, player));
 				}
 			});
 		}

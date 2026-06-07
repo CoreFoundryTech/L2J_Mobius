@@ -509,7 +509,7 @@ public class EnterWorld implements IClientIncomingPacket
 		if (salvation140Client)
 		{
 			logSalvation140Outbound("ExSetCompassZoneCode");
-			player.sendPacket(new ExSetCompassZoneCode(ExSetCompassZoneCode.GENERALZONE));
+			player.sendPacket(new ExSetCompassZoneCode(player));
 			logSalvation140Outbound("MagicAndSkillList");
 			player.sendPacket(new MagicAndSkillList(player, 3503292, 730502));
 		}
