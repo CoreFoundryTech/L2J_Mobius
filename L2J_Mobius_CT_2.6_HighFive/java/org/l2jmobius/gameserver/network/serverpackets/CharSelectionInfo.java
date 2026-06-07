@@ -263,6 +263,15 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 				packet.writeD(charInfoPackage.getPaperdollItemId(slot));
 			}
 
+			// Protocol 140 expects the post-H5 paperdoll extension used by Salvation/Classic clients.
+			// High Five has no brooch, jewels, or agathion paperdoll slots, so keep layout alignment
+			// by writing zero placeholders before the visual item-id block. This mirrors the
+			// L2Scripts 140 Inventory.PAPERDOLL_ORDER tail: brooch, jewel1-6, agathion main, agathion1-4.
+			for (int slot = 0; slot < 12; slot++)
+			{
+				packet.writeD(0x00);
+			}
+
 			packet.writeD(0x00); // Weapon visual item id.
 			packet.writeD(0x00); // Shield visual item id.
 			packet.writeD(0x00); // Gloves visual item id.
