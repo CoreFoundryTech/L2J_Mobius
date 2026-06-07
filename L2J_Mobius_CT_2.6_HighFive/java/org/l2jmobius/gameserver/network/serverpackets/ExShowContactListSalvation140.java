@@ -1,67 +1,45 @@
 /*
  * This file is part of the L2J Mobius project.
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.l2jmobius.gameserver.network.serverpackets;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 import org.l2jmobius.commons.network.PacketWriter;
 import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
-import org.l2jmobius.gameserver.model.items.instance.ItemInstance;
 
-public class ExQuestItemListSalvation140 extends AbstractItemPacket
+public class ExShowContactListSalvation140 implements IClientOutgoingPacket
 {
-	private final int _sendType;
-	private final PlayerInstance _player;
-	private final List<ItemInstance> _items = new ArrayList<>();
-
-	public ExQuestItemListSalvation140(int sendType, PlayerInstance player)
+	private final Set<String> _contacts;
+	
+	public ExShowContactListSalvation140(PlayerInstance player)
 	{
-		_sendType = sendType;
-		_player = player;
-		for (ItemInstance item : player.getInventory().getItems())
-		{
-			if (item.isQuestItem())
-			{
-				_items.add(item);
-			}
-		}
+		_contacts = player.getContactList().getAllContacts();
 	}
-
+	
 	@Override
 	public boolean write(PacketWriter packet)
 	{
 		packet.writeC(0xFE);
-		packet.writeH(0xC7);
-		packet.writeC(_sendType);
-		if (_sendType == 2)
+		packet.writeH(0xD4);
+		packet.writeD(_contacts.size());
+		for (String name : _contacts)
 		{
-			packet.writeD(_items.size());
+			packet.writeS(name);
 		}
-		else
-		{
-			packet.writeH(0x00);
-		}
-		packet.writeD(_items.size());
-		for (ItemInstance item : _items)
-		{
-			ItemListSalvation140.writeItemSalvation140(packet, item);
-		}
-		writeInventoryBlock(packet, _player.getInventory());
 		return true;
 	}
 }

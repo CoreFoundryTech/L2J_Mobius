@@ -68,12 +68,6 @@ public class ItemListSalvation140 extends AbstractItemPacket
 		return true;
 	}
 
-	@Override
-	public void runImpl(PlayerInstance player)
-	{
-		player.sendPacket(new ExQuestItemListSalvation140(_sendType, _player));
-	}
-
 	static void writeItemSalvation140(PacketWriter packet, ItemInstance item)
 	{
 		writeItemSalvation140(packet, new ItemInfo(item));

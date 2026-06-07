@@ -80,9 +80,12 @@ import org.l2jmobius.gameserver.network.serverpackets.ExGetBookMarkInfoPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ExLightingCandleEvent;
 import org.l2jmobius.gameserver.network.serverpackets.ExNoticePostArrived;
 import org.l2jmobius.gameserver.network.serverpackets.ExNotifyPremiumItem;
+import org.l2jmobius.gameserver.network.serverpackets.ExQuestItemListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ExRotation;
+import org.l2jmobius.gameserver.network.serverpackets.ExRotationSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ExSetCompassZoneCode;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowContactList;
+import org.l2jmobius.gameserver.network.serverpackets.ExShowContactListSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.ExStorageMaxCount;
 import org.l2jmobius.gameserver.network.serverpackets.ExUserInfoAbnormalVisualEffect;
@@ -491,9 +494,16 @@ public class EnterWorld implements IClientIncomingPacket
 		{
 			player.setSpawnProtection(true);
 		}
-		
+
 		player.spawnMe(player.getX(), player.getY(), player.getZ());
-		player.sendPacket(new ExRotation(player.getObjectId(), player.getHeading()));
+		if (salvation140Client)
+		{
+			player.sendPacket(new ExRotationSalvation140(player.getObjectId(), player.getHeading()));
+		}
+		else
+		{
+			player.sendPacket(new ExRotation(player.getObjectId(), player.getHeading()));
+		}
 		if (salvation140Client)
 		{
 			player.sendPacket(new ExSetCompassZoneCode(ExSetCompassZoneCode.GENERALZONE));
@@ -530,7 +540,7 @@ public class EnterWorld implements IClientIncomingPacket
 		player.sendPacket(new ExStorageMaxCount(player));
 		if (salvation140Client)
 		{
-			client.sendPacket(new ExShowContactList(player));
+			client.sendPacket(new ExShowContactListSalvation140(player));
 			client.sendPacket(ExBRNewIconCashBtnWnd.NO_UPDATES);
 		}
 
@@ -593,7 +603,10 @@ public class EnterWorld implements IClientIncomingPacket
 		{
 			client.sendPacket(new ExVoteSystemInfo(player));
 		}
-		client.sendPacket(new ExShowContactList(player));
+		if (!salvation140Client)
+		{
+			client.sendPacket(new ExShowContactList(player));
+		}
 		
 		for (ItemInstance i : player.getInventory().getItems())
 		{
@@ -721,7 +734,10 @@ public class EnterWorld implements IClientIncomingPacket
 		player.sendPacket(new QuestList(player));
 		client.sendPacket(new ExGetBookMarkInfoPacket(player));
 		player.sendPacket(new SSQInfo());
+		client.sendPacket(new ItemListSalvation140(1, player));
 		client.sendPacket(new ItemListSalvation140(2, player));
+		client.sendPacket(new ExQuestItemListSalvation140(1, player));
+		client.sendPacket(new ExQuestItemListSalvation140(2, player));
 		player.sendPacket(new ExAdenaInvenCount(player));
 		client.sendPacket(new ShortCutInit(player));
 		player.sendPacket(ExBasicActionListSalvation140.STATIC_PACKET);
