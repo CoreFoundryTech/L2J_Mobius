@@ -49,6 +49,12 @@ public class RequestBlock implements IClientIncomingPacket
 	@Override
 	public void run(GameClient client)
 	{
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 ignored RequestBlock/0xA9 account=" + client.getAccountName() + ", type=" + _type);
+			return;
+		}
+
 		final PlayerInstance player = client.getPlayer();
 		final int targetId = CharNameTable.getInstance().getIdByName(_name);
 		final int targetAL = CharNameTable.getInstance().getAccessLevelById(targetId);
