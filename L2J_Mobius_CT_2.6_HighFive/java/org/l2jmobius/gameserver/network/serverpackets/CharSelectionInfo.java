@@ -262,10 +262,6 @@ public class CharSelectionInfo implements IClientOutgoingPacket
 			{
 				packet.writeD(charInfoPackage.getPaperdollItemId(slot));
 			}
-			for (int j = 0; j < 12; j++)
-			{
-				packet.writeD(0x00); // Brooch/jewel/agathion slots unavailable in H5 data model.
-			}
 
 			packet.writeD(0x00); // Weapon visual item id.
 			packet.writeD(0x00); // Shield visual item id.
