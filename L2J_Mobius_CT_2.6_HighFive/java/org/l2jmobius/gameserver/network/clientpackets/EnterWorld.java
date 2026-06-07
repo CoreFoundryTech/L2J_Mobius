@@ -115,7 +115,13 @@ public class EnterWorld implements IClientIncomingPacket
 	{
 		if (client.isSalvation140Client())
 		{
-			LOGGER_ACCOUNTING.info("EnterWorld read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", remaining=" + packet.getReadableBytes());
+			String marker = "";
+			if (packet.getReadableBytes() > 0)
+			{
+				marker = packet.readS(); // L2Scripts 140 notes the client always sends "narcasse" here.
+			}
+			LOGGER_ACCOUNTING.info("EnterWorld read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", marker=" + marker + ", remaining=" + packet.getReadableBytes());
+			System.out.println("SALVATION140 EnterWorld read account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", marker=" + marker + ", remaining=" + packet.getReadableBytes());
 			return true;
 		}
 		
@@ -142,6 +148,10 @@ public class EnterWorld implements IClientIncomingPacket
 	{
 		final PlayerInstance player = client.getPlayer();
 		LOGGER_ACCOUNTING.info("EnterWorld run account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", player=" + (player == null ? "null" : player.getName()) + ", objectId=" + (player == null ? 0 : player.getObjectId()));
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 EnterWorld run account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", player=" + (player == null ? "null" : player.getName()) + ", objectId=" + (player == null ? 0 : player.getObjectId()));
+		}
 		if (player == null)
 		{
 			LOGGER.warning("EnterWorld failed! player returned 'null'.");

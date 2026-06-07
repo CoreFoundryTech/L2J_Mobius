@@ -67,6 +67,7 @@ public class CharacterSelect implements IClientIncomingPacket
 		if (client.isSalvation140Client())
 		{
 			LOGGER_ACCOUNTING.info("CharacterSelect read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", remaining=" + packet.getReadableBytes());
+			System.out.println("SALVATION140 CharacterSelect read account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", remaining=" + packet.getReadableBytes());
 			return true;
 		}
 		
@@ -82,6 +83,10 @@ public class CharacterSelect implements IClientIncomingPacket
 	public void run(GameClient client)
 	{
 		LOGGER_ACCOUNTING.info("CharacterSelect run account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot);
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 CharacterSelect run account=" + client.getAccountName() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot);
+		}
 		
 		if (!client.getFloodProtectors().getCharacterSelect().tryPerformAction("CharacterSelect"))
 		{
@@ -187,6 +192,10 @@ public class CharacterSelect implements IClientIncomingPacket
 					
 					client.setConnectionState(ConnectionState.ENTERING);
 					LOGGER_ACCOUNTING.info("CharacterSelect sending CharSelected account=" + client.getAccountName() + ", slot=" + _charSlot + ", objectId=" + cha.getObjectId() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState());
+					if (client.isSalvation140Client())
+					{
+						System.out.println("SALVATION140 CharacterSelect sending CharSelected account=" + client.getAccountName() + ", slot=" + _charSlot + ", objectId=" + cha.getObjectId() + ", state=" + client.getConnectionState());
+					}
 					client.sendPacket(new CharSelected(cha, client.getSessionId().playOkID1, client.getProtocolProfile()));
 				}
 			}
