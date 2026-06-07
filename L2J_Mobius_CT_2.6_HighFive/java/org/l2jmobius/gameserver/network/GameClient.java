@@ -86,6 +86,8 @@ public class GameClient extends ChannelInboundHandler<GameClient>
 	private volatile boolean _isDetached = false;
 	
 	private boolean _protocol;
+	private int _protocolVersion;
+	private ClientProtocolProfile _protocolProfile = ClientProtocolProfile.HIGH_FIVE;
 	
 	private int[][] trace;
 	
@@ -668,7 +670,33 @@ public class GameClient extends ChannelInboundHandler<GameClient>
 	{
 		return _protocol;
 	}
-	
+
+	public int getProtocolVersion()
+	{
+		return _protocolVersion;
+	}
+
+	public ClientProtocolProfile getProtocolProfile()
+	{
+		return _protocolProfile;
+	}
+
+	public void setProtocolVersion(int protocolVersion)
+	{
+		_protocolVersion = protocolVersion;
+		_protocolProfile = ClientProtocolProfile.forProtocolVersion(protocolVersion);
+	}
+
+	public boolean isHighFiveClient()
+	{
+		return _protocolProfile == ClientProtocolProfile.HIGH_FIVE;
+	}
+
+	public boolean isSalvation140Client()
+	{
+		return _protocolProfile == ClientProtocolProfile.SALVATION_140;
+	}
+
 	public void setProtocolOk(boolean b)
 	{
 		_protocol = b;

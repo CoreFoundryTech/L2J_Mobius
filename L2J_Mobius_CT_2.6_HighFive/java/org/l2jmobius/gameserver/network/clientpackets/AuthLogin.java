@@ -16,6 +16,8 @@
  */
 package org.l2jmobius.gameserver.network.clientpackets;
 
+import java.util.logging.Logger;
+
 import org.l2jmobius.commons.network.PacketReader;
 import org.l2jmobius.gameserver.LoginServerThread;
 import org.l2jmobius.gameserver.LoginServerThread.SessionKey;
@@ -26,6 +28,8 @@ import org.l2jmobius.gameserver.network.GameClient;
  */
 public class AuthLogin implements IClientIncomingPacket
 {
+	private static final Logger LOGGER_ACCOUNTING = Logger.getLogger("accounting");
+
 	// loginName + keys must match what the loginserver used.
 	private String _loginName;
 	/*
@@ -35,7 +39,8 @@ public class AuthLogin implements IClientIncomingPacket
 	private int _playKey2;
 	private int _loginKey1;
 	private int _loginKey2;
-	
+	private int _language;
+
 	@Override
 	public boolean read(GameClient client, PacketReader packet)
 	{
@@ -44,6 +49,10 @@ public class AuthLogin implements IClientIncomingPacket
 		_playKey1 = packet.readD();
 		_loginKey1 = packet.readD();
 		_loginKey2 = packet.readD();
+		if (packet.getReadableBytes() >= 4)
+		{
+			_language = packet.readD();
+		}
 		return true;
 	}
 	
@@ -55,9 +64,10 @@ public class AuthLogin implements IClientIncomingPacket
 			client.closeNow();
 			return;
 		}
-		
+
 		final SessionKey key = new SessionKey(_loginKey1, _loginKey2, _playKey1, _playKey2);
-		
+		LOGGER_ACCOUNTING.info("AuthLogin account=" + _loginName + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", lang=" + _language);
+
 		// avoid potential exploits
 		if (client.getAccountName() == null)
 		{
