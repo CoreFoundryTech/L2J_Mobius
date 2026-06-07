@@ -58,20 +58,23 @@ public class PacketDecoder<T>extends ByteToMessageDecoder
 			final short packetId = in.readUnsignedByte();
 			if (packetId >= _incomingPackets.length)
 			{
+				logSalvation140Packet("unknown-range", packetId, null, in);
 				LOGGER.finer("Unknown packet: " + Integer.toHexString(packetId));
 				return;
 			}
-			
+
 			final IIncomingPackets<T> incomingPacket = _incomingPackets[packetId];
 			if (incomingPacket == null)
 			{
+				logSalvation140Packet("unknown-null", packetId, null, in);
 				LOGGER.finer("Unknown packet: " + Integer.toHexString(packetId));
 				return;
 			}
-			
+
 			final IConnectionState connectionState = ctx.channel().attr(IConnectionState.ATTRIBUTE_KEY).get();
 			if ((connectionState == null) || !incomingPacket.getConnectionStates().contains(connectionState))
 			{
+				logSalvation140Packet("invalid-state " + incomingPacket, packetId, connectionState, in);
 				// LOGGER.warning(incomingPacket + ": Connection at invalid state: " + connectionState + " Required States: " + incomingPacket.getConnectionStates());
 				return;
 			}
@@ -87,5 +90,44 @@ public class PacketDecoder<T>extends ByteToMessageDecoder
 			// We always consider that we read whole packet.
 			in.readerIndex(in.writerIndex());
 		}
+	}
+
+	private void logSalvation140Packet(String reason, short packetId, IConnectionState connectionState, ByteBuf in)
+	{
+		if (!isSalvation140Client())
+		{
+			return;
+		}
+
+		final String message = "SALVATION140 decoder " + reason + ", packet=0x" + String.format("%02X", packetId & 0xFF) + ", state=" + connectionState + ", readable=" + in.readableBytes() + ", bytes=" + toHex(in, Math.min(in.readableBytes(), 32)) + ", client=" + _client;
+		LOGGER.warning(message);
+		System.out.println(message);
+	}
+
+	private boolean isSalvation140Client()
+	{
+		try
+		{
+			return Boolean.TRUE.equals(_client.getClass().getMethod("isSalvation140Client").invoke(_client));
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
+
+	private static String toHex(ByteBuf in, int length)
+	{
+		final StringBuilder sb = new StringBuilder(length * 3);
+		final int readerIndex = in.readerIndex();
+		for (int i = 0; i < length; i++)
+		{
+			if (i > 0)
+			{
+				sb.append(' ');
+			}
+			sb.append(String.format("%02X", in.getUnsignedByte(readerIndex + i)));
+		}
+		return sb.toString();
 	}
 }
