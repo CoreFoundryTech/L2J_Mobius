@@ -181,8 +181,8 @@ public enum ExIncomingPackets implements IIncomingPackets<GameClient>
 	REQUEST_INZONE_PARTY_INFO_HISTORY_SALVATION_140(0x97, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME),
 	REQUEST_HARDWARE_INFO(0x96, null, ConnectionState.values()),
 	REQUEST_HARDWARE_INFO_SALVATION_140(0xAE, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME),
-	REQUEST_MENTOR_LIST_SALVATION_140(0xB6, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME),
-	EX_SEND_SELECTED_QUEST_ZONE_ID_SALVATION_140(0xFF, RequestExSalvation140Ignored::new, ConnectionState.IN_GAME);
+	REQUEST_MENTOR_LIST_SALVATION_140(0xB6, RequestMentorListSalvation140::new, ConnectionState.IN_GAME),
+	EX_SEND_SELECTED_QUEST_ZONE_ID_SALVATION_140(0xFF, ExSendSelectedQuestZoneIDSalvation140::new, ConnectionState.IN_GAME);
 	
 	public static final ExIncomingPackets[] PACKET_ARRAY;
 	static
