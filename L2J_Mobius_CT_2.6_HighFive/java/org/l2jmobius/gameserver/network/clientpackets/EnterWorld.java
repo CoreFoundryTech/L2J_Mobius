@@ -72,7 +72,9 @@ import org.l2jmobius.gameserver.network.serverpackets.CreatureSay;
 import org.l2jmobius.gameserver.network.serverpackets.Die;
 import org.l2jmobius.gameserver.network.serverpackets.EtcStatusUpdate;
 import org.l2jmobius.gameserver.network.serverpackets.ExBasicActionList;
+import org.l2jmobius.gameserver.network.serverpackets.ExEnterWorldPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ExGetBookMarkInfoPacket;
+import org.l2jmobius.gameserver.network.serverpackets.ExLightingCandleEvent;
 import org.l2jmobius.gameserver.network.serverpackets.ExNoticePostArrived;
 import org.l2jmobius.gameserver.network.serverpackets.ExNotifyPremiumItem;
 import org.l2jmobius.gameserver.network.serverpackets.ExRotation;
@@ -681,7 +683,9 @@ public class EnterWorld implements IClientIncomingPacket
 
 	private void sendSalvation140EarlyBootstrap(GameClient client, PlayerInstance player)
 	{
-		System.out.println("SALVATION140 EnterWorld bootstrap account=" + client.getAccountName() + ", player=" + player.getName() + ", skip=UserInfo0x32");
+		System.out.println("SALVATION140 EnterWorld bootstrap account=" + client.getAccountName() + ", player=" + player.getName() + ", skip=UserInfo0x32, add=ExLightingCandleEvent+ExEnterWorldPacket");
+		player.sendPacket(ExLightingCandleEvent.DISABLED);
+		player.sendPacket(new ExEnterWorldPacket());
 		player.sendPacket(new HennaInfo(player));
 		player.sendSkillList();
 		player.sendPacket(new EtcStatusUpdate(player));
