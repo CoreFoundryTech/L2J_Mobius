@@ -64,23 +64,34 @@ public class CharacterSelect implements IClientIncomingPacket
 	public boolean read(GameClient client, PacketReader packet)
 	{
 		_charSlot = packet.readD();
+		if (client.isSalvation140Client())
+		{
+			LOGGER_ACCOUNTING.info("CharacterSelect read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", remaining=" + packet.getReadableBytes());
+			return true;
+		}
+		
 		_unk1 = packet.readH();
 		_unk2 = packet.readD();
 		_unk3 = packet.readD();
 		_unk4 = packet.readD();
+		LOGGER_ACCOUNTING.info("CharacterSelect read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot + ", remaining=" + packet.getReadableBytes());
 		return true;
 	}
 	
 	@Override
 	public void run(GameClient client)
 	{
+		LOGGER_ACCOUNTING.info("CharacterSelect run account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", slot=" + _charSlot);
+		
 		if (!client.getFloodProtectors().getCharacterSelect().tryPerformAction("CharacterSelect"))
 		{
+			LOGGER_ACCOUNTING.warning("CharacterSelect rejected by flood protector, account=" + client.getAccountName() + ", slot=" + _charSlot + ", state=" + client.getConnectionState());
 			return;
 		}
 		
 		if (SecondaryAuthData.getInstance().isEnabled() && !client.getSecondaryAuth().isAuthed())
 		{
+			LOGGER_ACCOUNTING.info("CharacterSelect secondary auth required, account=" + client.getAccountName() + ", slot=" + _charSlot + ", state=" + client.getConnectionState());
 			client.getSecondaryAuth().openDialog();
 			return;
 		}
@@ -98,8 +109,10 @@ public class CharacterSelect implements IClientIncomingPacket
 					final CharSelectInfoPackage info = client.getCharSelection(_charSlot);
 					if (info == null)
 					{
+						LOGGER_ACCOUNTING.warning("CharacterSelect no character for account=" + client.getAccountName() + ", slot=" + _charSlot + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState());
 						return;
 					}
+					LOGGER_ACCOUNTING.info("CharacterSelect selected account=" + client.getAccountName() + ", slot=" + _charSlot + ", objectId=" + info.getObjectId() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState());
 					
 					// Banned?
 					if (PunishmentManager.getInstance().hasPunishment(info.getObjectId(), PunishmentAffect.CHARACTER, PunishmentType.BAN) || PunishmentManager.getInstance().hasPunishment(client.getAccountName(), PunishmentAffect.ACCOUNT, PunishmentType.BAN) || PunishmentManager.getInstance().hasPunishment(client.getConnectionAddress().getHostAddress(), PunishmentAffect.IP, PunishmentType.BAN))
@@ -150,6 +163,7 @@ public class CharacterSelect implements IClientIncomingPacket
 					final PlayerInstance cha = client.load(_charSlot);
 					if (cha == null)
 					{
+						LOGGER_ACCOUNTING.warning("CharacterSelect load failed account=" + client.getAccountName() + ", slot=" + _charSlot + ", objectId=" + info.getObjectId() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState());
 						return; // handled in GameClient
 					}
 					
@@ -166,10 +180,14 @@ public class CharacterSelect implements IClientIncomingPacket
 						return;
 					}
 					
-					client.sendPacket(new SSQInfo());
+					if (!client.isSalvation140Client())
+					{
+						client.sendPacket(new SSQInfo());
+					}
 					
 					client.setConnectionState(ConnectionState.ENTERING);
-					client.sendPacket(new CharSelected(cha, client.getSessionId().playOkID1));
+					LOGGER_ACCOUNTING.info("CharacterSelect sending CharSelected account=" + client.getAccountName() + ", slot=" + _charSlot + ", objectId=" + cha.getObjectId() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState());
+					client.sendPacket(new CharSelected(cha, client.getSessionId().playOkID1, client.getProtocolProfile()));
 				}
 			}
 			finally

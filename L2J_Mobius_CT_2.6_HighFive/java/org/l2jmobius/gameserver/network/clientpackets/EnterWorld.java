@@ -16,6 +16,8 @@
  */
 package org.l2jmobius.gameserver.network.clientpackets;
 
+import java.util.logging.Logger;
+
 import org.l2jmobius.Config;
 import org.l2jmobius.commons.concurrent.ThreadPool;
 import org.l2jmobius.commons.network.PacketReader;
@@ -104,11 +106,19 @@ import org.l2jmobius.gameserver.util.BuilderUtil;
  */
 public class EnterWorld implements IClientIncomingPacket
 {
+	private static final Logger LOGGER_ACCOUNTING = Logger.getLogger("accounting");
+	
 	private final int[][] tracert = new int[5][4];
 	
 	@Override
 	public boolean read(GameClient client, PacketReader packet)
 	{
+		if (client.isSalvation140Client())
+		{
+			LOGGER_ACCOUNTING.info("EnterWorld read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", remaining=" + packet.getReadableBytes());
+			return true;
+		}
+		
 		packet.readB(32); // Unknown Byte Array
 		packet.readD(); // Unknown Value
 		packet.readD(); // Unknown Value
@@ -123,6 +133,7 @@ public class EnterWorld implements IClientIncomingPacket
 				tracert[i][o] = packet.readC();
 			}
 		}
+		LOGGER_ACCOUNTING.info("EnterWorld read account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", remaining=" + packet.getReadableBytes());
 		return true;
 	}
 	
@@ -130,6 +141,7 @@ public class EnterWorld implements IClientIncomingPacket
 	public void run(GameClient client)
 	{
 		final PlayerInstance player = client.getPlayer();
+		LOGGER_ACCOUNTING.info("EnterWorld run account=" + client.getAccountName() + ", protocol=" + client.getProtocolVersion() + ", profile=" + client.getProtocolProfile() + ", state=" + client.getConnectionState() + ", player=" + (player == null ? "null" : player.getName()) + ", objectId=" + (player == null ? 0 : player.getObjectId()));
 		if (player == null)
 		{
 			LOGGER.warning("EnterWorld failed! player returned 'null'.");

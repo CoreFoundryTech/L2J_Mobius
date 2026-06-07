@@ -19,12 +19,14 @@ package org.l2jmobius.gameserver.network.serverpackets;
 import org.l2jmobius.commons.network.PacketWriter;
 import org.l2jmobius.gameserver.GameTimeController;
 import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
+import org.l2jmobius.gameserver.network.ClientProtocolProfile;
 import org.l2jmobius.gameserver.network.OutgoingPackets;
 
 public class CharSelected implements IClientOutgoingPacket
 {
 	private final PlayerInstance _player;
 	private final int _sessionId;
+	private final ClientProtocolProfile _protocolProfile;
 	
 	/**
 	 * @param player
@@ -32,12 +34,23 @@ public class CharSelected implements IClientOutgoingPacket
 	 */
 	public CharSelected(PlayerInstance player, int sessionId)
 	{
+		this(player, sessionId, ClientProtocolProfile.HIGH_FIVE);
+	}
+	
+	public CharSelected(PlayerInstance player, int sessionId, ClientProtocolProfile protocolProfile)
+	{
 		_player = player;
 		_sessionId = sessionId;
+		_protocolProfile = protocolProfile;
 	}
 	
 	@Override
 	public boolean write(PacketWriter packet)
+	{
+		return _protocolProfile == ClientProtocolProfile.SALVATION_140 ? writeSalvation140(packet) : writeHighFive(packet);
+	}
+	
+	private boolean writeHighFive(PacketWriter packet)
 	{
 		OutgoingPackets.CHARACTER_SELECTED.writeId(packet);
 		
@@ -73,6 +86,45 @@ public class CharSelected implements IClientOutgoingPacket
 		packet.writeD(0x00);
 		
 		packet.writeD(_player.getClassId().getId());
+		
+		packet.writeD(0x00);
+		packet.writeD(0x00);
+		packet.writeD(0x00);
+		packet.writeD(0x00);
+		
+		packet.writeB(new byte[64]);
+		packet.writeD(0x00);
+		return true;
+	}
+	
+	private boolean writeSalvation140(PacketWriter packet)
+	{
+		OutgoingPackets.CHARACTER_SELECTED.writeId(packet);
+		
+		packet.writeS(_player.getName());
+		packet.writeD(_player.getObjectId());
+		packet.writeS(_player.getTitle());
+		packet.writeD(_sessionId);
+		packet.writeD(_player.getClanId());
+		packet.writeD(0x00); // Builder level.
+		packet.writeD(_player.getAppearance().getSex() ? 1 : 0);
+		packet.writeD(_player.getRace().ordinal());
+		packet.writeD(_player.getClassId().getId());
+		packet.writeD(0x01); // Active character.
+		packet.writeD(_player.getX());
+		packet.writeD(_player.getY());
+		packet.writeD(_player.getZ());
+		
+		packet.writeF(_player.getCurrentHp());
+		packet.writeF(_player.getCurrentMp());
+		packet.writeQ(_player.getSp());
+		packet.writeQ(_player.getExp());
+		packet.writeD(_player.getLevel());
+		packet.writeD(_player.getKarma());
+		packet.writeD(_player.getPkKills());
+		packet.writeD(GameTimeController.getInstance().getGameTime());
+		packet.writeD(0x00);
+		packet.writeD(0x00); // Default class id in L2Scripts non-HF layout.
 		
 		packet.writeD(0x00);
 		packet.writeD(0x00);
