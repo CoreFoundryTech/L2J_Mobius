@@ -63,7 +63,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeD(_relation);
 
 		packet.writeH(16 + (_name.length() * 2));
-		packet.writeS(_name);
+		packet.writeString(_name);
 		packet.writeC(_player.isGM() ? 1 : 0);
 		packet.writeC(_player.getRace().ordinal());
 		packet.writeC(_player.getAppearance().getSex() ? 1 : 0);
@@ -164,7 +164,7 @@ public class UserInfo140 implements IClientOutgoingPacket
 		packet.writeH(_player.getAttackElementValue(attackAttribute));
 
 		packet.writeH(32 + (_title.length() * 2));
-		packet.writeS(_title);
+		packet.writeString(_title);
 		packet.writeH(_player.getPledgeType());
 		packet.writeD(_player.getClanId());
 		packet.writeD(_player.getClanCrestLargeId());
