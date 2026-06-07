@@ -38,7 +38,29 @@ public class PacketWriter
 	{
 		return _buf.writableBytes();
 	}
-	
+
+	/**
+	 * Gets the current write position.
+	 * @return the current write position
+	 */
+	public int getPosition()
+	{
+		return _buf.writerIndex();
+	}
+
+	/**
+	 * Copies already written packet bytes without changing read/write indices.
+	 * @param index the first byte index to copy
+	 * @param length the number of bytes to copy
+	 * @return copied bytes
+	 */
+	public byte[] getBytes(int index, int length)
+	{
+		final byte[] data = new byte[length];
+		_buf.getBytes(index, data);
+		return data;
+	}
+
 	/**
 	 * Writes a byte.
 	 * @param value the byte (The 24 high-order bits are ignored)
