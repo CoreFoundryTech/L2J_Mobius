@@ -498,6 +498,7 @@ public class EnterWorld implements IClientIncomingPacket
 		player.spawnMe(player.getX(), player.getY(), player.getZ());
 		if (salvation140Client)
 		{
+			logSalvation140Outbound("ExRotationSalvation140");
 			player.sendPacket(new ExRotationSalvation140(player.getObjectId(), player.getHeading()));
 		}
 		else
@@ -506,7 +507,9 @@ public class EnterWorld implements IClientIncomingPacket
 		}
 		if (salvation140Client)
 		{
+			logSalvation140Outbound("ExSetCompassZoneCode");
 			player.sendPacket(new ExSetCompassZoneCode(ExSetCompassZoneCode.GENERALZONE));
+			logSalvation140Outbound("MagicAndSkillList");
 			player.sendPacket(new MagicAndSkillList(player, 3503292, 730502));
 		}
 		
@@ -537,13 +540,26 @@ public class EnterWorld implements IClientIncomingPacket
 		}
 		
 		// Expand Skill
-		player.sendPacket(new ExStorageMaxCount(player));
 		if (salvation140Client)
 		{
+			logSalvation140Outbound("WARNING skipped H5 ExStorageMaxCount");
+		}
+		else
+		{
+			player.sendPacket(new ExStorageMaxCount(player));
+		}
+		if (salvation140Client)
+		{
+			logSalvation140Outbound("ExShowContactListSalvation140");
 			client.sendPacket(new ExShowContactListSalvation140(player));
+			logSalvation140Outbound("ExBRNewIconCashBtnWnd");
 			client.sendPacket(ExBRNewIconCashBtnWnd.NO_UPDATES);
 		}
 
+		if (salvation140Client)
+		{
+			logSalvation140Outbound("L2FriendListSalvation140");
+		}
 		client.sendPacket(salvation140Client ? new L2FriendListSalvation140(player) : new FriendList(player));
 		
 		SystemMessage sm = new SystemMessage(SystemMessageId.YOUR_FRIEND_S1_JUST_LOGGED_IN);
@@ -597,10 +613,18 @@ public class EnterWorld implements IClientIncomingPacket
 		}
 		
 		player.onPlayerEnter();
-		
+
+		if (salvation140Client)
+		{
+			logSalvation140Outbound("SkillCoolTime");
+		}
 		client.sendPacket(new SkillCoolTime(player));
 		if (Config.NEVIT_ENABLED)
 		{
+			if (salvation140Client)
+			{
+				logSalvation140Outbound("ExVoteSystemInfo");
+			}
 			client.sendPacket(new ExVoteSystemInfo(player));
 		}
 		if (!salvation140Client)
@@ -721,26 +745,51 @@ public class EnterWorld implements IClientIncomingPacket
 	private void sendSalvation140EarlyBootstrap(GameClient client, PlayerInstance player)
 	{
 		System.out.println("SALVATION140 EnterWorld bootstrap account=" + client.getAccountName() + ", player=" + player.getName() + ", add=ExLightingCandleEvent+ExEnterWorldPacket+UserInfo140+ExUserInfo cluster");
+		logSalvation140Outbound("ExLightingCandleEvent");
 		player.sendPacket(ExLightingCandleEvent.DISABLED);
+		logSalvation140Outbound("ExEnterWorldPacket");
 		player.sendPacket(new ExEnterWorldPacket());
+		logSalvation140Outbound("HennaInfo");
 		player.sendPacket(new HennaInfo(player));
+		logSalvation140Outbound("SkillListSalvation140");
 		player.sendPacket(new SkillListSalvation140(player));
+		logSalvation140Outbound("EtcStatusUpdate");
 		player.sendPacket(new EtcStatusUpdate(player));
+		logSalvation140Outbound("UserInfo140");
 		player.sendPacket(new UserInfo140(player));
+		logSalvation140Outbound("ExUserInfoInvenWeight");
 		player.sendPacket(new ExUserInfoInvenWeight(player));
+		logSalvation140Outbound("ExUserInfoEquipSlot");
 		player.sendPacket(new ExUserInfoEquipSlot(player));
+		logSalvation140Outbound("ExUserInfoCubic");
 		player.sendPacket(new ExUserInfoCubic(player));
+		logSalvation140Outbound("ExUserInfoAbnormalVisualEffect");
 		player.sendPacket(new ExUserInfoAbnormalVisualEffect(player));
+		logSalvation140Outbound("QuestList");
 		player.sendPacket(new QuestList(player));
+		logSalvation140Outbound("ExGetBookMarkInfo");
 		client.sendPacket(new ExGetBookMarkInfoPacket(player));
+		logSalvation140Outbound("SSQInfo");
 		player.sendPacket(new SSQInfo());
+		logSalvation140Outbound("ItemListSalvation140(1)");
 		client.sendPacket(new ItemListSalvation140(1, player));
+		logSalvation140Outbound("ItemListSalvation140(2)");
 		client.sendPacket(new ItemListSalvation140(2, player));
+		logSalvation140Outbound("ExQuestItemListSalvation140(1)");
 		client.sendPacket(new ExQuestItemListSalvation140(1, player));
+		logSalvation140Outbound("ExQuestItemListSalvation140(2)");
 		client.sendPacket(new ExQuestItemListSalvation140(2, player));
+		logSalvation140Outbound("ExAdenaInvenCount");
 		player.sendPacket(new ExAdenaInvenCount(player));
+		logSalvation140Outbound("ShortCutInit");
 		client.sendPacket(new ShortCutInit(player));
+		logSalvation140Outbound("ExBasicActionListSalvation140");
 		player.sendPacket(ExBasicActionListSalvation140.STATIC_PACKET);
+	}
+
+	private void logSalvation140Outbound(String packetName)
+	{
+		System.out.println("SALVATION140 OUTBOUND BOOTSTRAP " + packetName);
 	}
 
 	private void engage(PlayerInstance player)
