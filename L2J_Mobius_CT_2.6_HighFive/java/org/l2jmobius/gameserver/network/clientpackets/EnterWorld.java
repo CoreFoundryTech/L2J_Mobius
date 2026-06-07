@@ -73,12 +73,14 @@ import org.l2jmobius.gameserver.network.serverpackets.Die;
 import org.l2jmobius.gameserver.network.serverpackets.EtcStatusUpdate;
 import org.l2jmobius.gameserver.network.serverpackets.ExAdenaInvenCount;
 import org.l2jmobius.gameserver.network.serverpackets.ExBasicActionList;
+import org.l2jmobius.gameserver.network.serverpackets.ExBRNewIconCashBtnWnd;
 import org.l2jmobius.gameserver.network.serverpackets.ExEnterWorldPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ExGetBookMarkInfoPacket;
 import org.l2jmobius.gameserver.network.serverpackets.ExLightingCandleEvent;
 import org.l2jmobius.gameserver.network.serverpackets.ExNoticePostArrived;
 import org.l2jmobius.gameserver.network.serverpackets.ExNotifyPremiumItem;
 import org.l2jmobius.gameserver.network.serverpackets.ExRotation;
+import org.l2jmobius.gameserver.network.serverpackets.ExSetCompassZoneCode;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowContactList;
 import org.l2jmobius.gameserver.network.serverpackets.ExShowScreenMessage;
 import org.l2jmobius.gameserver.network.serverpackets.ExStorageMaxCount;
@@ -90,6 +92,7 @@ import org.l2jmobius.gameserver.network.serverpackets.ExVoteSystemInfo;
 import org.l2jmobius.gameserver.network.serverpackets.FriendList;
 import org.l2jmobius.gameserver.network.serverpackets.HennaInfo;
 import org.l2jmobius.gameserver.network.serverpackets.ItemList;
+import org.l2jmobius.gameserver.network.serverpackets.MagicAndSkillList;
 import org.l2jmobius.gameserver.network.serverpackets.NpcHtmlMessage;
 import org.l2jmobius.gameserver.network.serverpackets.PledgeShowMemberListAll;
 import org.l2jmobius.gameserver.network.serverpackets.PledgeShowMemberListUpdate;
@@ -487,6 +490,11 @@ public class EnterWorld implements IClientIncomingPacket
 		
 		player.spawnMe(player.getX(), player.getY(), player.getZ());
 		player.sendPacket(new ExRotation(player.getObjectId(), player.getHeading()));
+		if (salvation140Client)
+		{
+			player.sendPacket(new ExSetCompassZoneCode(ExSetCompassZoneCode.GENERALZONE));
+			player.sendPacket(new MagicAndSkillList(player, 3503292, 730502));
+		}
 		
 		player.getInventory().applyItemSkills();
 		
@@ -516,7 +524,12 @@ public class EnterWorld implements IClientIncomingPacket
 		
 		// Expand Skill
 		player.sendPacket(new ExStorageMaxCount(player));
-		
+		if (salvation140Client)
+		{
+			client.sendPacket(new ExShowContactList(player));
+			client.sendPacket(ExBRNewIconCashBtnWnd.NO_UPDATES);
+		}
+
 		client.sendPacket(new FriendList(player));
 		
 		SystemMessage sm = new SystemMessage(SystemMessageId.YOUR_FRIEND_S1_JUST_LOGGED_IN);
