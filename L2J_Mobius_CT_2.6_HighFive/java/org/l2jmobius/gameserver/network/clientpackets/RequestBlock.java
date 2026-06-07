@@ -49,26 +49,26 @@ public class RequestBlock implements IClientIncomingPacket
 	@Override
 	public void run(GameClient client)
 	{
-		if (client.isSalvation140Client())
-		{
-			System.out.println("SALVATION140 ignored RequestBlock/0xA9 account=" + client.getAccountName() + ", type=" + _type);
-			return;
-		}
-
 		final PlayerInstance player = client.getPlayer();
-		final int targetId = CharNameTable.getInstance().getIdByName(_name);
-		final int targetAL = CharNameTable.getInstance().getAccessLevelById(targetId);
-		
+
 		if (player == null)
 		{
 			return;
 		}
-		
+
+		if (client.isSalvation140Client())
+		{
+			System.out.println("SALVATION140 RequestBlock/0xA9 account=" + client.getAccountName() + ", player=" + player.getName() + ", type=" + _type);
+		}
+
 		switch (_type)
 		{
 			case BLOCK:
 			case UNBLOCK:
 			{
+				final int targetId = CharNameTable.getInstance().getIdByName(_name);
+				final int targetAL = CharNameTable.getInstance().getAccessLevelById(targetId);
+
 				// can't use block/unblock for locating invisible characters
 				if (targetId <= 0)
 				{
