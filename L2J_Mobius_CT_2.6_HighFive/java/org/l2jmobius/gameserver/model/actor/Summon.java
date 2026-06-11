@@ -67,6 +67,7 @@ import org.l2jmobius.gameserver.network.serverpackets.PetInfo;
 import org.l2jmobius.gameserver.network.serverpackets.PetItemList;
 import org.l2jmobius.gameserver.network.serverpackets.PetStatusUpdate;
 import org.l2jmobius.gameserver.network.serverpackets.RelationChanged;
+import org.l2jmobius.gameserver.network.serverpackets.SummonInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 import org.l2jmobius.gameserver.network.serverpackets.TeleportToLocation;
 import org.l2jmobius.gameserver.taskmanager.DecayTaskManager;
@@ -201,7 +202,7 @@ public abstract class Summon extends Playable
 	{
 		World.getInstance().forEachVisibleObject(this, PlayerInstance.class, player ->
 		{
-			player.sendPacket(new SummonInfo(this, player, 1));
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new SummonInfoSalvation140(this, player, 1) : new SummonInfo(this, player, 1));
 		});
 	}
 	
@@ -866,7 +867,7 @@ public abstract class Summon extends Playable
 			{
 				return;
 			}
-			player.sendPacket(new SummonInfo(this, player, val));
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new SummonInfoSalvation140(this, player, val) : new SummonInfo(this, player, val));
 		});
 	}
 	
@@ -901,7 +902,7 @@ public abstract class Summon extends Playable
 		}
 		else
 		{
-			player.sendPacket(new SummonInfo(this, player, 0));
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new SummonInfoSalvation140(this, player, 0) : new SummonInfo(this, player, 0));
 		}
 	}
 	

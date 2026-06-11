@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.l2jmobius.commons.util.CommonUtil;
 import org.l2jmobius.gameserver.ai.CtrlIntention;
 import org.l2jmobius.gameserver.data.xml.impl.SkillData;
+import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.WorldObject;
 import org.l2jmobius.gameserver.model.actor.Attackable;
 import org.l2jmobius.gameserver.model.actor.Npc;
@@ -33,6 +34,7 @@ import org.l2jmobius.gameserver.model.actor.instance.TamedBeastInstance;
 import org.l2jmobius.gameserver.model.holders.SkillHolder;
 import org.l2jmobius.gameserver.model.skills.Skill;
 import org.l2jmobius.gameserver.network.serverpackets.AbstractNpcInfo;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 
 import ai.AbstractNpcAI;
 import quests.Q00020_BringUpWithLove.Q00020_BringUpWithLove;
@@ -277,7 +279,10 @@ public class BeastFarm extends AbstractNpcAI
 				}
 			}
 			nextNpc.setName(name);
-			nextNpc.broadcastPacket(new AbstractNpcInfo.NpcInfo(nextNpc, player));
+			World.getInstance().forEachVisibleObject(nextNpc, PlayerInstance.class, visiblePlayer ->
+			{
+				visiblePlayer.sendPacket(((visiblePlayer.getClient() != null) && visiblePlayer.getClient().isSalvation140Client()) ? new NpcInfoSalvation140(nextNpc) : new AbstractNpcInfo.NpcInfo(nextNpc, player));
+			});
 			nextNpc.setRunning();
 			
 			final SkillData st = SkillData.getInstance();

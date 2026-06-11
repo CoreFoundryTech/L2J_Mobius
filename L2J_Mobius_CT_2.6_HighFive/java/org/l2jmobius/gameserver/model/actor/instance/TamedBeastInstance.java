@@ -29,6 +29,7 @@ import org.l2jmobius.gameserver.data.xml.impl.NpcData;
 import org.l2jmobius.gameserver.data.xml.impl.SkillData;
 import org.l2jmobius.gameserver.enums.InstanceType;
 import org.l2jmobius.gameserver.model.Location;
+import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.WorldObject;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.effects.EffectType;
@@ -36,6 +37,7 @@ import org.l2jmobius.gameserver.model.items.instance.ItemInstance;
 import org.l2jmobius.gameserver.model.skills.Skill;
 import org.l2jmobius.gameserver.network.serverpackets.AbstractNpcInfo;
 import org.l2jmobius.gameserver.network.serverpackets.ActionFailed;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.SocialAction;
 import org.l2jmobius.gameserver.network.serverpackets.StopMove;
 
@@ -260,7 +262,10 @@ public class TamedBeastInstance extends FeedableBeastInstance
 			setTitle(owner.getName());
 			// broadcast the new title
 			setShowSummonAnimation(true);
-			broadcastPacket(new AbstractNpcInfo.NpcInfo(this, owner));
+			World.getInstance().forEachVisibleObject(this, PlayerInstance.class, player ->
+			{
+				player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new NpcInfoSalvation140(this) : new AbstractNpcInfo.NpcInfo(this, owner));
+			});
 			
 			owner.addTrainedBeast(this);
 			

@@ -19,6 +19,7 @@ package org.l2jmobius.gameserver.model.actor.instance;
 import org.l2jmobius.commons.util.Rnd;
 import org.l2jmobius.gameserver.datatables.ItemTable;
 import org.l2jmobius.gameserver.model.ArenaParticipantsHolder;
+import org.l2jmobius.gameserver.model.World;
 import org.l2jmobius.gameserver.model.actor.Creature;
 import org.l2jmobius.gameserver.model.actor.templates.NpcTemplate;
 import org.l2jmobius.gameserver.model.entity.BlockCheckerEngine;
@@ -27,6 +28,7 @@ import org.l2jmobius.gameserver.network.serverpackets.AbstractNpcInfo;
 import org.l2jmobius.gameserver.network.serverpackets.ActionFailed;
 import org.l2jmobius.gameserver.network.serverpackets.ExCubeGameChangePoints;
 import org.l2jmobius.gameserver.network.serverpackets.ExCubeGameExtendedChangePoints;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 
 /**
  * @author BiggBoss
@@ -60,16 +62,14 @@ public class BlockInstance extends MonsterInstance
 			{
 				// Change color
 				_colorEffect = 0x00;
-				// BroadCast to all known players
-				broadcastPacket(new AbstractNpcInfo.NpcInfo(this, attacker));
+				broadcastNpcInfo(attacker);
 				increaseTeamPointsAndSend(attacker, team, event);
 			}
 			else
 			{
 				// Change color
 				_colorEffect = 0x53;
-				// BroadCast to all known players
-				broadcastPacket(new AbstractNpcInfo.NpcInfo(this, attacker));
+				broadcastNpcInfo(attacker);
 				increaseTeamPointsAndSend(attacker, team, event);
 			}
 			// 30% chance to drop the event items
@@ -86,6 +86,14 @@ public class BlockInstance extends MonsterInstance
 		}
 	}
 	
+	private void broadcastNpcInfo(PlayerInstance attacker)
+	{
+		World.getInstance().forEachVisibleObject(this, PlayerInstance.class, player ->
+		{
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new NpcInfoSalvation140(this) : new AbstractNpcInfo.NpcInfo(this, attacker));
+		});
+	}
+
 	/**
 	 * Sets if the block is red or blue. Mainly used in block spawn
 	 * @param isRed

@@ -41,6 +41,7 @@ import org.l2jmobius.gameserver.model.zone.ZoneId;
 import org.l2jmobius.gameserver.network.SystemMessageId;
 import org.l2jmobius.gameserver.network.serverpackets.AbstractNpcInfo.TrapInfo;
 import org.l2jmobius.gameserver.network.serverpackets.IClientOutgoingPacket;
+import org.l2jmobius.gameserver.network.serverpackets.NpcInfoSalvation140;
 import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
 import org.l2jmobius.gameserver.taskmanager.DecayTaskManager;
 
@@ -344,7 +345,7 @@ public class TrapInstance extends Npc
 	{
 		if (_isTriggered || canBeSeen(player))
 		{
-			player.sendPacket(new TrapInfo(this, player));
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new NpcInfoSalvation140(this) : new TrapInfo(this, player));
 		}
 	}
 	
@@ -393,7 +394,10 @@ public class TrapInstance extends Npc
 		}
 		
 		_isTriggered = true;
-		broadcastPacket(new TrapInfo(this, null));
+		World.getInstance().forEachVisibleObject(this, PlayerInstance.class, player ->
+		{
+			player.sendPacket(((player.getClient() != null) && player.getClient().isSalvation140Client()) ? new NpcInfoSalvation140(this) : new TrapInfo(this, null));
+		});
 		setTarget(target);
 		
 		EventDispatcher.getInstance().notifyEventAsync(new OnTrapAction(this, target, TrapAction.TRAP_TRIGGERED), this);
